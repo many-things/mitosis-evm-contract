@@ -1,4 +1,4 @@
-name: coverage
+name: pull_requests
 
 on: pull_request
 
@@ -26,6 +26,12 @@ jobs:
         run: |
           forge coverage --report lcov
         id: coverage
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
+
 
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
