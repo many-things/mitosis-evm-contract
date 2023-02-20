@@ -49,12 +49,6 @@ jobs:
     needs: [check]
     if: always()
     steps:
-      - uses: actions/checkout@v3
-      - name: Get Latest commit message
-        id: head_commit_message
-        run: |
-          echo "$(git show -s --format=%s)"
-          echo "headCommitMsg='$(git show -s --format=%s)'" >> $GITHUB_OUTPUT
       - name: Send CI Result
         env:
           SLACK_TITLE: "${{ needs.check.result == 'success' && ':white_check_mark: PR CI Passed' || ':x: PR CI Failed' }}"
@@ -92,10 +86,6 @@ jobs:
                           {
                               "type": "mrkdwn",
                               "text": "*Author:*\n${{ github.event.pull_request.user.login }}"
-                          },
-                          {
-                              "type": "mrkdwn",
-                              "text": "*Commit:*\n${{ steps.head_commit_message.outputs.headCommitMsg }}"
                           }
                       ]
                   },
