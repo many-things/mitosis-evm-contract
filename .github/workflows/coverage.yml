@@ -1,0 +1,40 @@
+name: coverage
+
+on: pull_reqeust
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  check:
+    strategy:
+      fail-fast: true
+
+    name: Foundry project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Forge build
+        run: |
+          forge coverage --report lcov
+        id: coverage
+
+      - name: Setup LCOV
+        uses: hrishikesh-kadam/setup-lcov@v1
+
+      - name: Report code coverage
+        uses: zgosalvez/github-actions-report-lcov@v3
+        with: 
+          coverage-files: lcov.info
+          minimum-coverage: 60
+          artifact-name: code-coverage-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
