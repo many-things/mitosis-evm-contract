@@ -43,9 +43,6 @@ jobs:
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
-      
-      - name: Fail
-        run: exit 1
 
   notify-slack:
     name: Slack Notification
@@ -86,7 +83,10 @@ jobs:
                   {
                       "type": "section",
                       "fields": [
-
+                          {
+                              "type": "mrkdwn",
+                              "text": "*PR Name:*\n${{ github.event.pull_request.title }}"
+                          },
                           {
                               "type": "mrkdwn",
                               "text": "*Author:*\n${{ github.event.pull_request.user.login }}"
