@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: true
 
-    name: Foundry project
+    name: Pull Request CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -43,8 +43,15 @@ jobs:
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
-
+  notify-slack:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    needs: [check]
+    if: always()
+    steps:
       - name: Send CI Result
+        env:
+          SLACK_TITLE: "${{ needs.check.result == 'success' && ':white_check_mark: PR CI Passed' || ':x: PR CI Failed' }}"
         run: |
           curl --request POST \
           --url https://hooks.slack.com/services/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 \
@@ -55,7 +62,7 @@ jobs:
                       "type": "header",
                       "text": {
                           "type": "plain_text",
-                          "text": ":white_check_mark: PR CI Passed",
+                          "text": "${{ env.SLACK_TITLE }}",
                           "emoji": True
                       }
                   },
