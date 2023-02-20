@@ -32,7 +32,6 @@ jobs:
           forge test -vvv
         id: test
 
-
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
 
@@ -44,3 +43,48 @@ jobs:
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
+
+      - name: Send CI Result
+        run: |
+          curl --request POST \
+          --url \
+          --data '{
+              "text": "",
+              "blocks": [
+                  {
+                      "type": "header",
+                      "text": {
+                          "type": "plain_text",
+                          "text": ":white_check_mark: PR CI Passed",
+                          "emoji": True
+                      }
+                  },
+                  {
+                      "type": "section",
+                      "fields": [
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Repo:*\n${{ github.event.repository.name }}",
+                          }, 
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Branch:*\n${{ github.head_ref }}",
+                          },
+                      ]
+                  },
+                  {
+                      "type": "section",
+                      "fields": [
+
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Author:*\${{ github.event.pull_request.user.login }}"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*PR:*\n<https://github.com/many-things/${{github.event.repository.name}}/pull/${{github.event.number}}|Show Pull Request>"
+                          }
+                      ]
+                  },
+              ]
+          }'
