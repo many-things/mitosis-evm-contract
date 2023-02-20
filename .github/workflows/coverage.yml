@@ -49,6 +49,9 @@ jobs:
     needs: [check]
     if: always()
     steps:
+      - name: Get Latest commit message
+        id: head_commit_message
+        run: echo "::set-output name=headCommitMsag::$(git show -s --format=%s)"
       - name: Send CI Result
         env:
           SLACK_TITLE: "${{ needs.check.result == 'success' && ':white_check_mark: PR CI Passed' || ':x: PR CI Failed' }}"
@@ -89,7 +92,7 @@ jobs:
                           },
                           {
                               "type": "mrkdwn",
-                              "text": "*Commit:*\n${{ github.event.head_commit.message }}"
+                              "text": "*Commit:*\n${{ steps.head_commit_message.outputs.headCommitMsag }}"
                           }
                       ]
                   },
