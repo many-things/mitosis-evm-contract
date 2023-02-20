@@ -1,6 +1,6 @@
 name: coverage
 
-on: pull_reqeust
+on: pull_request
 
 env:
   FOUNDRY_PROFILE: ci
