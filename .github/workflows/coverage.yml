@@ -35,14 +35,11 @@ jobs:
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
 
-      - name: Report code coverage
-        uses: zgosalvez/github-actions-report-lcov@v3
-        with: 
-          coverage-files: lcov.info
-          minimum-coverage: 60
-          artifact-name: code-coverage-report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          update-comment: true
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   notify-slack:
     name: Slack Notification
