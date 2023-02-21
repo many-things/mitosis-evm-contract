@@ -44,6 +44,8 @@ contract LiquidityManager {
     }
 
     function withdraw(address _withdrawer, Token memory _token) public {
+        balances[_withdrawer][_token.addr] -= _token.amount;
+
         if (_token.addr == address(0x0)) {
             payable(_withdrawer).transfer(_token.amount);
         } else {
@@ -51,7 +53,5 @@ contract LiquidityManager {
 
             token.transfer(_withdrawer, _token.amount);
         }
-
-        balances[_withdrawer][_token.addr] -= _token.amount;
     }
 }
