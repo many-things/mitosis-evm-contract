@@ -39,6 +39,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   notify-slack:
     name: Slack Notification
