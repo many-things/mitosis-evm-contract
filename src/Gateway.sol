@@ -74,7 +74,7 @@ contract Gateway {
 
         // approve & deposit
         token.approve(address(lmgr), _token.amount);
-        lmgr.deposit(msg.sender, _token);
+        lmgr.deposit(msg.sender, Token(_token.addr, _token.amount));
 
         address denom = dmgr.convert(_token.addr);
 
