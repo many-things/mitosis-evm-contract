@@ -8,7 +8,7 @@ import {LiquidityManager} from "../src/LiquidityManager.sol";
 import {Token, TokenPermit} from "../src/Types.sol";
 
 import {ERC2612} from "./ERC2612.sol";
-import {Account} from "./Test.sol";
+import {Account, AccountLib} from "./Test.sol";
 
 contract LiquidityManagerTest is Test {
     LiquidityManager internal lmgr;
@@ -18,16 +18,12 @@ contract LiquidityManagerTest is Test {
 
     Account internal depositor;
 
-    function newAccount(uint256 key) internal pure returns (Account memory) {
-        return Account(vm.addr(key), key);
-    }
-
     function setUp() public {
         lmgr = new LiquidityManager();
         weth = new WETH();
 
         ETH = address(0x1);
-        depositor = newAccount(0x2);
+        depositor = AccountLib.create(vm, 0x2);
     }
 
     function test_deposit_eth() public {
