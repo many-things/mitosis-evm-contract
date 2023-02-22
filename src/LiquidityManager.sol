@@ -43,15 +43,19 @@ contract LiquidityManager {
         balances[_depositor][_token.addr] += _token.amount;
     }
 
-    function withdraw(address _withdrawer, Token memory _token) public {
-        balances[_withdrawer][_token.addr] -= _token.amount;
+    function withdraw(Token memory _token) public {
+        withdraw(msg.sender, _token);
+    }
 
-        if (_token.addr == address(0x0)) {
-            payable(_withdrawer).transfer(_token.amount);
+    function withdraw(address _receiver, Token memory _token) public {
+        balances[msg.sender][_token.addr] -= _token.amount;
+
+        if (_token.addr == address(0x1)) {
+            payable(_receiver).transfer(_token.amount);
         } else {
             ERC20 token = ERC20(_token.addr);
 
-            token.transfer(_withdrawer, _token.amount);
+            token.transfer(_receiver, _token.amount);
         }
     }
 }
