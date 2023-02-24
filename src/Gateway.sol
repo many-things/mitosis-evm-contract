@@ -10,19 +10,42 @@ import {LiquidityManager} from "./LiquidityManager.sol";
 import {Operation, Token, TokenPermit} from "./Types.sol";
 import {Utils} from "./Utils.sol";
 
+/**
+ * @title Gateway
+ * @author @byeongsu-hong<hong@byeongsu.dev>
+ * @notice This is the main endpoint of the protocol. Validators will listen to events emitted by this contract.
+ */
 contract Gateway {
     LiquidityManager public lmgr;
     DenomManager public dmgr;
 
+    /**
+     * @param to destination address of this operation
+     * @param denom converted token denomination that Mitosis can recognize
+     * @param opId operation id
+     * @param token original token address
+     * @param amount amount of token
+     * @param opArgs operation arguments
+     * @dev for opId, opArgs, you must register them to Mitosis through the governance
+     */
     event InitOperation(
         address indexed to, address indexed denom, uint256 indexed opId, address token, uint256 amount, bytes opArgs
     );
 
+    /**
+     * @param _lmgr address of liquidity manager
+     * @param _dmgr address of denom manager
+     */
     constructor(LiquidityManager _lmgr, DenomManager _dmgr) {
         lmgr = _lmgr;
         dmgr = _dmgr;
     }
 
+    /**
+     * @notice execute operation to dest chain. This can be executed with msg.value or not.
+     * @param _to destination address of this operation
+     * @param _op operation data
+     */
     function send(address _to, Operation memory _op) public payable {
         if (msg.value > 0) {
             address token = dmgr.ETH();
@@ -40,6 +63,12 @@ contract Gateway {
         }
     }
 
+    /**
+     * @notice execute operation to dest chain with pre-approved ERC20 token
+     * @param _to destination address of this operation
+     * @param _op operation data
+     * @param _token token address and token amount
+     */
     function send(address _to, Operation memory _op, Token memory _token) public {
         require(_token.amount > 0, "amount must be greater than 0");
 
@@ -60,6 +89,12 @@ contract Gateway {
         emit InitOperation(_to, denom, _op.id, _token.addr, _token.amount, _op.args);
     }
 
+    /**
+     * @notice execute operation to dest chain with permitted ERC20 token
+     * @param _to destination address of this operation
+     * @param _op operation data
+     * @param _token token address and token amount and also permit signature
+     */
     function send(address _to, Operation memory _op, TokenPermit memory _token) public {
         require(_token.amount > 0, "amount must be greater than 0");
         require(_token.signature.length == 65, "invalid signature length");
