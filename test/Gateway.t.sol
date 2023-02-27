@@ -17,6 +17,9 @@ contract GatewayTest is Test {
     event InitOperation(
         address indexed to, address indexed denom, uint256 indexed opId, address token, uint256 amount, bytes opArgs
     );
+    event OwnerChanged(
+        address indexed old, address indexed change
+    );
 
     LiquidityManager internal lmgr;
     DenomManager internal dmgr;
@@ -34,6 +37,10 @@ contract GatewayTest is Test {
         dmgr.addAlias(address(weth), address(0x2));
 
         user = AccountLib.create(vm, 0x2);
+    }
+
+    function test_change_owner() public {
+
     }
 
     function test_send() public {
