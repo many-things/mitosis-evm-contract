@@ -18,6 +18,7 @@ import {Utils} from "./Utils.sol";
 contract Gateway {
     LiquidityManager public lmgr;
     DenomManager public dmgr;
+    address owner;
 
     /**
      * @param to destination address of this operation
@@ -33,12 +34,33 @@ contract Gateway {
     );
 
     /**
+     * @param old Owner who call this method
+     * @param change New Owner who own this contract after the call
+     */
+    event OwnerChanged(
+        address indexed old, address indexed change
+    );
+
+    /**
      * @param _lmgr address of liquidity manager
      * @param _dmgr address of denom manager
      */
     constructor(LiquidityManager _lmgr, DenomManager _dmgr) {
         lmgr = _lmgr;
         dmgr = _dmgr;
+        owner = msg.sender;
+    }
+
+    /**
+     * @notice change contract owner.
+     * @param _newOwner change owner to this account
+     */
+    function changeOwner(address _newOwner) public {
+        require(msg.sender == owner, "msg.sender must be contract owner");
+
+        address oldOwner = owner;
+        owner = _newOwner;
+        emit OwnerChanged(oldOwner, owner);
     }
 
     /**
