@@ -69,6 +69,8 @@ contract Gateway {
      * @param _op operation data
      */
     function send(address _to, Operation memory _op) public payable {
+        require(msg.sender == owner, "msg.sender must be contract owner");
+
         if (msg.value > 0) {
             address token = dmgr.ETH();
             address denom = dmgr.convert(token);
@@ -92,6 +94,7 @@ contract Gateway {
      * @param _token token address and token amount
      */
     function send(address _to, Operation memory _op, Token memory _token) public {
+        require(msg.sender == owner, "msg.sender must be contract owner");
         require(_token.amount > 0, "amount must be greater than 0");
 
         ERC20 token = ERC20(_token.addr);
@@ -118,6 +121,7 @@ contract Gateway {
      * @param _token token address and token amount and also permit signature
      */
     function send(address _to, Operation memory _op, TokenPermit memory _token) public {
+        require(msg.sender == owner, "msg.sender must be contract owner");
         require(_token.amount > 0, "amount must be greater than 0");
         require(_token.signature.length == 65, "invalid signature length");
 
