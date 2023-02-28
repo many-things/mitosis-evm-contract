@@ -40,7 +40,11 @@ contract GatewayTest is Test {
     }
 
     function test_change_owner() public {
+        vm.prank(user.addr);
+        assertEq(gateway.owner(), address(this));
 
+        gateway.changeOwner(user.addr);
+        assertEq(gateway.owner(), user.addr);
     }
 
     function test_send() public {

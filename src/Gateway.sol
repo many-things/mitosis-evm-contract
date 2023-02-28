@@ -18,7 +18,7 @@ import {Utils} from "./Utils.sol";
 contract Gateway {
     LiquidityManager public lmgr;
     DenomManager public dmgr;
-    address owner;
+    address public owner;
 
     /**
      * @param to destination address of this operation
