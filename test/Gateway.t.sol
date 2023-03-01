@@ -40,18 +40,11 @@ contract GatewayTest is Test {
     function test_change_owner() public {
         assertEq(gateway.owner(), address(this));
 
-        gateway.changeOwner(user.addr);
+        gateway.transferOwnership(user.addr);
         assertEq(gateway.owner(), user.addr);
     }
 
     function test_send() public {
-        vm.prank(user.addr);
-        vm.expectRevert("msg.sender must be contract owner");
-        gateway.send(user.addr, Operation(0, bytes("hello_world")));
-
-        vm.prank(address(this));
-        gateway.changeOwner(user.addr);
-
         vm.expectEmit(true, true, true, true);
         emit InitOperation(user.addr, dmgr.NONE(), 0, dmgr.NONE(), 0, bytes("hello_world"));
 
@@ -60,13 +53,6 @@ contract GatewayTest is Test {
     }
 
     function test_send_eth() public {
-        vm.prank(user.addr);
-        vm.expectRevert("msg.sender must be contract owner");
-        gateway.send(user.addr, Operation(0, bytes("hello_world")));
-
-        vm.prank(address(this));
-        gateway.changeOwner(user.addr);
-
         vm.expectEmit(true, true, true, true);
         emit InitOperation(user.addr, dmgr.ETH(), 0, dmgr.ETH(), 1 ether, bytes("hello_world"));
 
@@ -79,13 +65,6 @@ contract GatewayTest is Test {
     }
 
     function test_send_erc20() public {
-        vm.prank(user.addr);
-        vm.expectRevert("msg.sender must be contract owner");
-        gateway.send(user.addr, Operation(0, bytes("hello_world")));
-
-        vm.prank(address(this));
-        gateway.changeOwner(user.addr);
-
         vm.expectEmit(true, true, true, true);
         emit InitOperation(user.addr, address(0x2), 0, address(weth), 1 ether, bytes("hello_world"));
 
@@ -105,13 +84,6 @@ contract GatewayTest is Test {
     }
 
     function test_send_erc2612() public {
-        vm.prank(user.addr);
-        vm.expectRevert("msg.sender must be contract owner");
-        gateway.send(user.addr, Operation(0, bytes("hello_world")));
-
-        vm.prank(address(this));
-        gateway.changeOwner(user.addr);
-
         vm.expectEmit(true, true, true, true);
         emit InitOperation(user.addr, address(0x2), 0, address(weth), 1 ether, bytes("hello_world"));
 
