@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Owned} from "@solmate/auth/Owned.sol";
+import "@oz/access/AccessControl.sol";
 
 /**
  * @title DenomManager
@@ -9,11 +10,13 @@ import {Owned} from "@solmate/auth/Owned.sol";
  * @notice This is denomination convertion middleware for Mitosis Gateway.
  * @dev There's a predefined addresses like NONE, ETH. be aware to use them.
  */
-contract DenomManager is Owned {
+contract DenomManager is Owned, AccessControl {
     address public constant NONE = address(0x0);
     address public constant ETH = address(0x1);
 
     mapping(address => address) public denoms;
+
+    bytes32 public constant GATEWAY_ROLE = keccak256("GATEWAY_ROLE");
 
     constructor() Owned(msg.sender) {
         // predefined tokens
@@ -37,5 +40,13 @@ contract DenomManager is Owned {
      */
     function addAlias(address _token, address _alias) public onlyOwner {
         denoms[_token] = _alias;
+    }
+
+    function addGatewayRole(address _gateway) public onlyOwner {
+        _grantRole(GATEWAY_ROLE, _gateway);
+    }
+
+    function removeGatewayRole(address _gateway) public onlyOwner {
+        _revokeRole(GATEWAY_ROLE, _gateway);
     }
 }
