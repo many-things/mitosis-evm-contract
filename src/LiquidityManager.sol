@@ -15,12 +15,14 @@ import {Utils} from "./Utils.sol";
  * @notice This is the liquidity manager of the protocol. Users can deposit and withdraw their tokens.
  * @dev TODO: concern about the liquidity isolation
  */
-contract LiquidityManager is Owned, AccessControl {
+contract LiquidityManager is AccessControl {
     mapping(address => mapping(address => uint256)) public balances;
 
     bytes32 public constant GATEWAY_ROLE = keccak256("GATEWAY_ROLE");
 
-    constructor() Owned(msg.sender) {}
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
 
     /**
      * @notice receive ETH for any reason
@@ -117,11 +119,19 @@ contract LiquidityManager is Owned, AccessControl {
         }
     }
 
-    function addGatewayRole(address _gateway) public onlyOwner {
-        _grantRole(GATEWAY_ROLE, _gateway);
+    function addGatewayRole(address _gateway) public {
+        grantRole(GATEWAY_ROLE, _gateway);
     }
 
-    function removeGatewayRole(address _gateway) public onlyOwner {
-        _revokeRole(GATEWAY_ROLE, _gateway);
+    function removeGatewayRole(address _gateway) public {
+        revokeRole(GATEWAY_ROLE, _gateway);
+    }
+
+    function addAdminRole(address _newAdmin) public {
+        grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
+    }
+
+    function removeAdminRole(address _newAdmin) public {
+        revokeRole(DEFAULT_ADMIN_ROLE, _newAdmin);
     }
 }

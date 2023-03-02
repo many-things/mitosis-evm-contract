@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.17;
 
-import {Owned} from "@solmate/auth/Owned.sol";
 import "@oz/access/AccessControl.sol";
 
 /**
@@ -10,7 +9,7 @@ import "@oz/access/AccessControl.sol";
  * @notice This is denomination convertion middleware for Mitosis Gateway.
  * @dev There's a predefined addresses like NONE, ETH. be aware to use them.
  */
-contract DenomManager is Owned, AccessControl {
+contract DenomManager is AccessControl {
     address public constant NONE = address(0x0);
     address public constant ETH = address(0x1);
 
@@ -18,10 +17,11 @@ contract DenomManager is Owned, AccessControl {
 
     bytes32 public constant GATEWAY_ROLE = keccak256("GATEWAY_ROLE");
 
-    constructor() Owned(msg.sender) {
+    constructor() {
         // predefined tokens
         denoms[address(0x0)] = NONE;
         denoms[address(0x1)] = ETH;
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     /**
@@ -38,15 +38,23 @@ contract DenomManager is Owned, AccessControl {
      * @param _alias Mitosis denomination that correlates with target token
      * @dev TODO: add access control
      */
-    function addAlias(address _token, address _alias) public onlyOwner {
+    function addAlias(address _token, address _alias) public onlyRole(DEFAULT_ADMIN_ROLE) {
         denoms[_token] = _alias;
     }
 
-    function addGatewayRole(address _gateway) public onlyOwner {
-        _grantRole(GATEWAY_ROLE, _gateway);
+    function addGatewayRole(address _gateway) public {
+        grantRole(GATEWAY_ROLE, _gateway);
     }
 
-    function removeGatewayRole(address _gateway) public onlyOwner {
-        _revokeRole(GATEWAY_ROLE, _gateway);
+    function removeGatewayRole(address _gateway) public {
+        revokeRole(GATEWAY_ROLE, _gateway);
+    }
+
+    function addAdminRole(address _newAdmin) public {
+        grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
+    }
+
+    function removeAdminRole(address _newAdmin) public {
+        revokeRole(DEFAULT_ADMIN_ROLE, _newAdmin);
     }
 }
