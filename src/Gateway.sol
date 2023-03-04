@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {Owned} from "@solmate/auth/Owned.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
 
 import {DenomManager} from "./DenomManager.sol";
@@ -15,7 +16,7 @@ import {Utils} from "./Utils.sol";
  * @author @byeongsu-hong<hong@byeongsu.dev>
  * @notice This is the main endpoint of the protocol. Validators will listen to events emitted by this contract.
  */
-contract Gateway {
+contract Gateway is Owned {
     LiquidityManager public lmgr;
     DenomManager public dmgr;
 
@@ -36,16 +37,16 @@ contract Gateway {
      * @param _lmgr address of liquidity manager
      * @param _dmgr address of denom manager
      */
-    constructor(LiquidityManager _lmgr, DenomManager _dmgr) {
+    constructor(LiquidityManager _lmgr, DenomManager _dmgr) Owned(msg.sender) {
         lmgr = _lmgr;
         dmgr = _dmgr;
     }
-
     /**
      * @notice execute operation to dest chain. This can be executed with msg.value or not.
      * @param _to destination address of this operation
      * @param _op operation data
      */
+
     function send(address _to, Operation memory _op) public payable {
         if (msg.value > 0) {
             address token = dmgr.ETH();

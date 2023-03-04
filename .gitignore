@@ -11,3 +11,5 @@ out/
 .env
 lcov.info
 coverage/**/*
+
+.vscode/
