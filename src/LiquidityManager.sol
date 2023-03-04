@@ -118,20 +118,4 @@ contract LiquidityManager is AccessControl {
             token.transfer(_receiver, _token.amount);
         }
     }
-
-    function addGatewayRole(address _gateway) public {
-        grantRole(GATEWAY_ROLE, _gateway);
-    }
-
-    function removeGatewayRole(address _gateway) public {
-        revokeRole(GATEWAY_ROLE, _gateway);
-    }
-
-    function addAdminRole(address _newAdmin) public {
-        grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
-    }
-
-    function removeAdminRole(address _newAdmin) public {
-        revokeRole(DEFAULT_ADMIN_ROLE, _newAdmin);
-    }
 }

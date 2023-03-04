@@ -41,20 +41,4 @@ contract DenomManager is AccessControl {
     function addAlias(address _token, address _alias) public onlyRole(DEFAULT_ADMIN_ROLE) {
         denoms[_token] = _alias;
     }
-
-    function addGatewayRole(address _gateway) public {
-        grantRole(GATEWAY_ROLE, _gateway);
-    }
-
-    function removeGatewayRole(address _gateway) public {
-        revokeRole(GATEWAY_ROLE, _gateway);
-    }
-
-    function addAdminRole(address _newAdmin) public {
-        grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
-    }
-
-    function removeAdminRole(address _newAdmin) public {
-        revokeRole(DEFAULT_ADMIN_ROLE, _newAdmin);
-    }
 }
