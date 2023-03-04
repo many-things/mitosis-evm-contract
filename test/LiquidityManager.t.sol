@@ -18,6 +18,7 @@ contract LiquidityManagerTest is Test {
     WETH internal weth;
 
     Account internal depositor;
+    Account internal abuser;
 
     function generateAccessControlMessage(address addr, bytes32 role) public pure returns (string memory) {
         return string(
@@ -36,6 +37,7 @@ contract LiquidityManagerTest is Test {
 
         ETH = address(0x1);
         depositor = AccountLib.create(vm, 0x2);
+        abuser = AccountLib.create(vm, 0x3);
     }
 
     function test_deposit_eth() public {
@@ -96,7 +98,32 @@ contract LiquidityManagerTest is Test {
         assertEq(weth.balanceOf(address(lmgr)), 1 ether);
     }
 
-    function test_access_control() public {
+    function test_abuse_access_control() public {
+        vm.startPrank(abuser.addr);
+
+        // Abuser trying to grant gateway role
+        bytes32 role = lmgr.GATEWAY_ROLE();
+        vm.expectRevert(bytes(generateAccessControlMessage(abuser.addr, bytes32(lmgr.DEFAULT_ADMIN_ROLE()))));
+        lmgr.grantRole(role, abuser.addr);
+
+        // Try withdraw => Face Error Because depositor does not have GatewayRole
+        vm.expectRevert(bytes(generateAccessControlMessage(abuser.addr, lmgr.GATEWAY_ROLE())));
+        lmgr.withdraw(abuser.addr, Token(ETH, 0.5 ether));
+
+        vm.expectRevert(bytes(generateAccessControlMessage(abuser.addr, lmgr.GATEWAY_ROLE())));
+        lmgr.withdraw(Token(ETH, 0.5 ether));
+
+        // Try withdraw erc20 => Face Error Because depositor does not have GatewayRole
+        vm.expectRevert(bytes(generateAccessControlMessage(abuser.addr, lmgr.GATEWAY_ROLE())));
+        lmgr.withdraw(Token(address(weth), 0.5 ether));
+
+        vm.expectRevert(bytes(generateAccessControlMessage(abuser.addr, lmgr.GATEWAY_ROLE())));
+        lmgr.withdraw(abuser.addr, Token(address(weth), 0.5 ether));
+    }
+
+    function test_valid_access_control() public {
+        lmgr.grantRole(lmgr.GATEWAY_ROLE(), depositor.addr);
+
         vm.startPrank(depositor.addr);
         vm.deal(depositor.addr, 2 ether);
 
@@ -111,31 +138,6 @@ contract LiquidityManagerTest is Test {
             )
         );
 
-        // Abuser trying to grant gateway role
-        bytes32 role = lmgr.GATEWAY_ROLE();
-        vm.expectRevert(
-            "AccessControl: account 0x2b5ad5c4795c026514f8317c7a215e218dccd6cf is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
-        );
-        lmgr.grantRole(role, depositor.addr);
-
-        // Try withdraw => Face Error Because depositor does not have GatewayRole
-        vm.expectRevert(bytes(generateAccessControlMessage(depositor.addr, lmgr.GATEWAY_ROLE())));
-        lmgr.withdraw(depositor.addr, Token(ETH, 0.5 ether));
-
-        vm.expectRevert(bytes(generateAccessControlMessage(depositor.addr, lmgr.GATEWAY_ROLE())));
-        lmgr.withdraw(Token(ETH, 0.5 ether));
-
-        // Try withdraw erc20 => Face Error Because depositor does not have GatewayRole
-        vm.expectRevert(bytes(generateAccessControlMessage(depositor.addr, lmgr.GATEWAY_ROLE())));
-        lmgr.withdraw(Token(address(weth), 0.5 ether));
-
-        vm.expectRevert(bytes(generateAccessControlMessage(depositor.addr, lmgr.GATEWAY_ROLE())));
-        lmgr.withdraw(depositor.addr, Token(address(weth), 0.5 ether));
-
-        vm.stopPrank();
-
-        lmgr.grantRole(lmgr.GATEWAY_ROLE(), depositor.addr);
-        vm.startPrank(depositor.addr);
         lmgr.withdraw(Token(ETH, 0.5 ether));
         lmgr.withdraw(Token(address(weth), 0.5 ether));
         vm.stopPrank();
