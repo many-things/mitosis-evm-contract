@@ -13,11 +13,13 @@ contract Deploy is Script {
     function run() public {
         string memory seedPhrase = vm.envString("MNEMONIC");
         uint256 privateKey = vm.deriveKey(seedPhrase, 0);
-        address owner = vm.addr(privateKey);
+        // address owner = vm.addr(privateKey);
 
         vm.startBroadcast(privateKey);
 
-        // TODO: Deploy Something
+        DenomManager dmgr = new DenomManager();
+        LiquidityManager lmgr = new LiquidityManager();
+        new Gateway(lmgr, dmgr);
 
         vm.stopBroadcast();
     }
