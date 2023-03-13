@@ -3,6 +3,9 @@ pragma solidity 0.8.17;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
+import {Owned} from "@solmate/auth/Owned.sol";
+import "@oz/access/AccessControl.sol";
+
 import {Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
 
@@ -12,8 +15,14 @@ import {Utils} from "@src/Utils.sol";
  * @notice This is the liquidity manager of the protocol. Users can deposit and withdraw their tokens.
  * @dev TODO: concern about the liquidity isolation
  */
-contract LiquidityManager {
+contract LiquidityManager is AccessControl {
     mapping(address => mapping(address => uint256)) public balances;
+
+    bytes32 public constant GATEWAY_ROLE = keccak256("GATEWAY_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
 
     /**
      * @notice receive ETH for any reason
@@ -88,7 +97,7 @@ contract LiquidityManager {
      * @dev if you set to _token.addr to zero address, The contract will detect it as ETH
      * @param _token token address and token amount
      */
-    function withdraw(Token memory _token) public {
+    function withdraw(Token memory _token) public onlyRole(GATEWAY_ROLE) {
         withdraw(msg.sender, _token);
     }
 
@@ -98,7 +107,7 @@ contract LiquidityManager {
      * @param _receiver address of receiver
      * @param _token token address and token amount
      */
-    function withdraw(address _receiver, Token memory _token) public {
+    function withdraw(address _receiver, Token memory _token) public onlyRole(GATEWAY_ROLE) {
         balances[msg.sender][_token.addr] -= _token.amount;
 
         if (_token.addr == address(0x1)) {
