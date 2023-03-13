@@ -2,4 +2,4 @@
 @solmate=lib/solmate/src/
 @oz=lib/openzeppelin-contracts/contracts/
 @src/=src/
-@test/test/
+@test/=test/
