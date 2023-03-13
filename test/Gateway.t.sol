@@ -5,13 +5,13 @@ import "@std/Test.sol";
 
 import {ERC20, WETH} from "@solmate/tokens/WETH.sol";
 
-import {DenomManager} from "../src/DenomManager.sol";
-import {LiquidityManager} from "../src/LiquidityManager.sol";
-import {Gateway} from "../src/Gateway.sol";
-import {Token, TokenPermit, Operation} from "../src/Types.sol";
+import {DenomManager} from "@src/DenomManager.sol";
+import {LiquidityManager} from "@src/LiquidityManager.sol";
+import {Gateway} from "@src/Gateway.sol";
+import {Token, TokenPermit, Operation} from "@src/Types.sol";
 
-import {ERC2612} from "./ERC2612.sol";
-import {Account, AccountLib} from "./Test.sol";
+import {ERC2612} from "@test/ERC2612.sol";
+import {Account, AccountLib} from "@test/Test.sol";
 
 contract GatewayTest is Test {
     event InitOperation(

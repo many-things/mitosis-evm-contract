@@ -3,8 +3,8 @@ pragma solidity 0.8.17;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-import {Token, TokenPermit} from "./Types.sol";
-import {Utils} from "./Utils.sol";
+import {Token, TokenPermit} from "@src/Types.sol";
+import {Utils} from "@src/Utils.sol";
 
 /**
  * @title LiquidityManager
