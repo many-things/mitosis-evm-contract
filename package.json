@@ -10,13 +10,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p ."
+    "build": "prettier --write types/*.ts && tsc -p ."
   },
   "dependencies": {
     "ethers": "^6.1.0"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/ethers-v6": "^0.3.0",
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",

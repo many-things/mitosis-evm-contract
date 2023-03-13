@@ -4,8 +4,8 @@ pragma solidity ^0.8.13;
 import "@std/Script.sol";
 
 import {DenomManager} from "@src/DenomManager.sol";
-import {Gateway} from '@src/Gateway.sol';
-import {LiquidityManager} from '@src/LiquidityManager.sol';
+import {Gateway} from "@src/Gateway.sol";
+import {LiquidityManager} from "@src/LiquidityManager.sol";
 
 contract Deploy is Script {
     function setUp() public {}
@@ -17,7 +17,7 @@ contract Deploy is Script {
 
         vm.startBroadcast(privateKey);
 
-        // TODO: Deploy Something        
+        // TODO: Deploy Something
 
         vm.stopBroadcast();
     }

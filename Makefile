@@ -1,6 +1,12 @@
 build:
 	@forge build
-	@npx typechain --target="ethers-v5" --out-dir="types" "out/Token.sol/*.json"
+	@npx typechain \
+		--target="ethers-v6" \
+		--out-dir="types" \
+		"out/DenomManager.sol/*.json" \
+		"out/Gateway.sol/*.json" \
+		"out/LiquidityManager.sol/*.json"
+	@yarn build
 
 deploy-goerli: build
 	@(MNEMONIC="$(GOERLI_DEPLOYER_KEY)" forge script script/deploy.sol:Deploy \
