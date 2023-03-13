@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {Vm} from "@std/Test.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 
-import {Account} from "./Test.sol";
+import {Account} from "@test/Test.sol";
 
 library ERC2612 {
     function permit(Vm vm, ERC20 _token, Account memory _permitter, address _spender, uint256 _value, uint256 _deadline)

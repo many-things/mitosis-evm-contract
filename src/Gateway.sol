@@ -5,11 +5,10 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Owned} from "@solmate/auth/Owned.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
 
-import {DenomManager} from "./DenomManager.sol";
-import {LiquidityManager} from "./LiquidityManager.sol";
-
-import {Operation, Token, TokenPermit} from "./Types.sol";
-import {Utils} from "./Utils.sol";
+import {DenomManager} from "@src/DenomManager.sol";
+import {LiquidityManager} from "@src/LiquidityManager.sol";
+import {Operation, Token, TokenPermit} from "@src/Types.sol";
+import {Utils} from "@src/Utils.sol";
 
 /**
  * @title Gateway

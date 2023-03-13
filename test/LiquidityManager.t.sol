@@ -5,11 +5,11 @@ import "@std/Test.sol";
 import {ERC20, WETH} from "@solmate/tokens/WETH.sol";
 import {Strings} from "@oz/utils/Strings.sol";
 
-import {LiquidityManager} from "../src/LiquidityManager.sol";
-import {Token, TokenPermit} from "../src/Types.sol";
+import {LiquidityManager} from "@src/LiquidityManager.sol";
+import {Token, TokenPermit} from "@src/Types.sol";
 
-import {ERC2612} from "./ERC2612.sol";
-import {Account, AccountLib} from "./Test.sol";
+import {ERC2612} from "@test/ERC2612.sol";
+import {Account, AccountLib} from "@test/Test.sol";
 
 contract LiquidityManagerTest is Test {
     LiquidityManager internal lmgr;

@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "@std/Test.sol";
 
-import {DenomManager} from "../src/DenomManager.sol";
+import {DenomManager} from "@src/DenomManager.sol";
 
 contract DenomManagerTest is Test {
     DenomManager internal dmgr;

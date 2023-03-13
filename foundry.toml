@@ -1,7 +1,15 @@
 [profile.default]
 src = 'src'
 out = 'out'
-script = 'script'
 libs = ['lib']
+solc = "0.8.17"
+
+[etherscan]
+mainnet = { key = "${ETHERSCAN_API_KEY}" }
+goerli = { key = "${ETHERSCAN_API_KEY}" }
+
+[rpc_endpoints]
+mainnet = "${MAINNET_RPC_ENDPOINT}"
+goerli = "${GOERLI_RPC_ENDPOINT}"
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
