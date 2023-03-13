@@ -7,6 +7,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -16,16 +17,42 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from './common'
 
 export interface DenomManagerInterface extends Interface {
   getFunction(
-    nameOrSignature: 'ETH' | 'NONE' | 'addAlias' | 'convert' | 'denoms',
+    nameOrSignature:
+      | 'DEFAULT_ADMIN_ROLE'
+      | 'ETH'
+      | 'GATEWAY_ROLE'
+      | 'NONE'
+      | 'addAlias'
+      | 'convert'
+      | 'denoms'
+      | 'getRoleAdmin'
+      | 'grantRole'
+      | 'hasRole'
+      | 'renounceRole'
+      | 'revokeRole'
+      | 'supportsInterface',
   ): FunctionFragment
 
+  getEvent(
+    nameOrSignatureOrTopic: 'RoleAdminChanged' | 'RoleGranted' | 'RoleRevoked',
+  ): EventFragment
+
+  encodeFunctionData(
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    values?: undefined,
+  ): string
   encodeFunctionData(functionFragment: 'ETH', values?: undefined): string
+  encodeFunctionData(
+    functionFragment: 'GATEWAY_ROLE',
+    values?: undefined,
+  ): string
   encodeFunctionData(functionFragment: 'NONE', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'addAlias',
@@ -33,12 +60,117 @@ export interface DenomManagerInterface extends Interface {
   ): string
   encodeFunctionData(functionFragment: 'convert', values: [AddressLike]): string
   encodeFunctionData(functionFragment: 'denoms', values: [AddressLike]): string
+  encodeFunctionData(
+    functionFragment: 'getRoleAdmin',
+    values: [BytesLike],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'grantRole',
+    values: [BytesLike, AddressLike],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'hasRole',
+    values: [BytesLike, AddressLike],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'renounceRole',
+    values: [BytesLike, AddressLike],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'revokeRole',
+    values: [BytesLike, AddressLike],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'supportsInterface',
+    values: [BytesLike],
+  ): string
 
+  decodeFunctionResult(
+    functionFragment: 'DEFAULT_ADMIN_ROLE',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(functionFragment: 'ETH', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: 'GATEWAY_ROLE',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(functionFragment: 'NONE', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'addAlias', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'convert', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'denoms', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: 'getRoleAdmin',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: 'renounceRole',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: 'supportsInterface',
+    data: BytesLike,
+  ): Result
+}
+
+export namespace RoleAdminChangedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    previousAdminRole: BytesLike,
+    newAdminRole: BytesLike,
+  ]
+  export type OutputTuple = [
+    role: string,
+    previousAdminRole: string,
+    newAdminRole: string,
+  ]
+  export interface OutputObject {
+    role: string
+    previousAdminRole: string
+    newAdminRole: string
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
+}
+
+export namespace RoleGrantedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike,
+  ]
+  export type OutputTuple = [role: string, account: string, sender: string]
+  export interface OutputObject {
+    role: string
+    account: string
+    sender: string
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
+}
+
+export namespace RoleRevokedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike,
+  ]
+  export type OutputTuple = [role: string, account: string, sender: string]
+  export interface OutputObject {
+    role: string
+    account: string
+    sender: string
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export interface DenomManager extends BaseContract {
@@ -85,7 +217,11 @@ export interface DenomManager extends BaseContract {
     event?: TCEvent,
   ): Promise<this>
 
+  DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], 'view'>
+
   ETH: TypedContractMethod<[], [string], 'view'>
+
+  GATEWAY_ROLE: TypedContractMethod<[], [string], 'view'>
 
   NONE: TypedContractMethod<[], [string], 'view'>
 
@@ -99,11 +235,49 @@ export interface DenomManager extends BaseContract {
 
   denoms: TypedContractMethod<[arg0: AddressLike], [string], 'view'>
 
+  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], 'view'>
+
+  grantRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+
+  hasRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    'view'
+  >
+
+  renounceRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+
+  revokeRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    'view'
+  >
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment,
   ): T
 
+  getFunction(
+    nameOrSignature: 'DEFAULT_ADMIN_ROLE',
+  ): TypedContractMethod<[], [string], 'view'>
   getFunction(nameOrSignature: 'ETH'): TypedContractMethod<[], [string], 'view'>
+  getFunction(
+    nameOrSignature: 'GATEWAY_ROLE',
+  ): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'NONE',
   ): TypedContractMethod<[], [string], 'view'>
@@ -120,6 +294,95 @@ export interface DenomManager extends BaseContract {
   getFunction(
     nameOrSignature: 'denoms',
   ): TypedContractMethod<[arg0: AddressLike], [string], 'view'>
+  getFunction(
+    nameOrSignature: 'getRoleAdmin',
+  ): TypedContractMethod<[role: BytesLike], [string], 'view'>
+  getFunction(
+    nameOrSignature: 'grantRole',
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+  getFunction(
+    nameOrSignature: 'hasRole',
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    'view'
+  >
+  getFunction(
+    nameOrSignature: 'renounceRole',
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+  getFunction(
+    nameOrSignature: 'revokeRole',
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    'nonpayable'
+  >
+  getFunction(
+    nameOrSignature: 'supportsInterface',
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>
 
-  filters: {}
+  getEvent(
+    key: 'RoleAdminChanged',
+  ): TypedContractEvent<
+    RoleAdminChangedEvent.InputTuple,
+    RoleAdminChangedEvent.OutputTuple,
+    RoleAdminChangedEvent.OutputObject
+  >
+  getEvent(
+    key: 'RoleGranted',
+  ): TypedContractEvent<
+    RoleGrantedEvent.InputTuple,
+    RoleGrantedEvent.OutputTuple,
+    RoleGrantedEvent.OutputObject
+  >
+  getEvent(
+    key: 'RoleRevoked',
+  ): TypedContractEvent<
+    RoleRevokedEvent.InputTuple,
+    RoleRevokedEvent.OutputTuple,
+    RoleRevokedEvent.OutputObject
+  >
+
+  filters: {
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >
+    RoleAdminChanged: TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >
+
+    'RoleGranted(bytes32,address,address)': TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >
+    RoleGranted: TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >
+
+    'RoleRevoked(bytes32,address,address)': TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
+    >
+    RoleRevoked: TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
+    >
+  }
 }

@@ -56,15 +56,20 @@ export interface GatewayInterface extends Interface {
     nameOrSignature:
       | 'dmgr'
       | 'lmgr'
+      | 'owner'
       | 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))'
       | 'send(address,(uint256,bytes))'
-      | 'send(address,(uint256,bytes),(address,uint256))',
+      | 'send(address,(uint256,bytes),(address,uint256))'
+      | 'transferOwnership',
   ): FunctionFragment
 
-  getEvent(nameOrSignatureOrTopic: 'InitOperation'): EventFragment
+  getEvent(
+    nameOrSignatureOrTopic: 'InitOperation' | 'OwnershipTransferred',
+  ): EventFragment
 
   encodeFunctionData(functionFragment: 'dmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
     values: [AddressLike, OperationStruct, TokenPermitStruct],
@@ -77,9 +82,14 @@ export interface GatewayInterface extends Interface {
     functionFragment: 'send(address,(uint256,bytes),(address,uint256))',
     values: [AddressLike, OperationStruct, TokenStruct],
   ): string
+  encodeFunctionData(
+    functionFragment: 'transferOwnership',
+    values: [AddressLike],
+  ): string
 
   decodeFunctionResult(functionFragment: 'dmgr', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'lmgr', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
   decodeFunctionResult(
     functionFragment: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
     data: BytesLike,
@@ -90,6 +100,10 @@ export interface GatewayInterface extends Interface {
   ): Result
   decodeFunctionResult(
     functionFragment: 'send(address,(uint256,bytes),(address,uint256))',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(
+    functionFragment: 'transferOwnership',
     data: BytesLike,
   ): Result
 }
@@ -118,6 +132,19 @@ export namespace InitOperationEvent {
     token: string
     amount: bigint
     opArgs: string
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [user: AddressLike, newOwner: AddressLike]
+  export type OutputTuple = [user: string, newOwner: string]
+  export interface OutputObject {
+    user: string
+    newOwner: string
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
   export type Filter = TypedDeferredTopicFilter<Event>
@@ -173,6 +200,8 @@ export interface Gateway extends BaseContract {
 
   lmgr: TypedContractMethod<[], [string], 'view'>
 
+  owner: TypedContractMethod<[], [string], 'view'>
+
   'send(address,(uint256,bytes),(address,uint256,uint256,bytes))': TypedContractMethod<
     [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
     [void],
@@ -191,6 +220,12 @@ export interface Gateway extends BaseContract {
     'nonpayable'
   >
 
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    'nonpayable'
+  >
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment,
   ): T
@@ -200,6 +235,9 @@ export interface Gateway extends BaseContract {
   ): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'lmgr',
+  ): TypedContractMethod<[], [string], 'view'>
+  getFunction(
+    nameOrSignature: 'owner',
   ): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
@@ -222,6 +260,9 @@ export interface Gateway extends BaseContract {
     [void],
     'nonpayable'
   >
+  getFunction(
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>
 
   getEvent(
     key: 'InitOperation',
@@ -229,6 +270,13 @@ export interface Gateway extends BaseContract {
     InitOperationEvent.InputTuple,
     InitOperationEvent.OutputTuple,
     InitOperationEvent.OutputObject
+  >
+  getEvent(
+    key: 'OwnershipTransferred',
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >
 
   filters: {
@@ -241,6 +289,17 @@ export interface Gateway extends BaseContract {
       InitOperationEvent.InputTuple,
       InitOperationEvent.OutputTuple,
       InitOperationEvent.OutputObject
+    >
+
+    'OwnershipTransferred(address,address)': TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >
   }
 }
