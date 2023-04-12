@@ -54,7 +54,6 @@ export type TokenStructOutput = [addr: string, amount: bigint] & {
 export interface GatewayInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | 'dmgr'
       | 'lmgr'
       | 'owner'
       | 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))'
@@ -67,7 +66,6 @@ export interface GatewayInterface extends Interface {
     nameOrSignatureOrTopic: 'InitOperation' | 'OwnershipTransferred',
   ): EventFragment
 
-  encodeFunctionData(functionFragment: 'dmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string
   encodeFunctionData(
@@ -87,7 +85,6 @@ export interface GatewayInterface extends Interface {
     values: [AddressLike],
   ): string
 
-  decodeFunctionResult(functionFragment: 'dmgr', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'lmgr', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
   decodeFunctionResult(
@@ -111,25 +108,22 @@ export interface GatewayInterface extends Interface {
 export namespace InitOperationEvent {
   export type InputTuple = [
     to: AddressLike,
-    denom: AddressLike,
-    opId: BigNumberish,
     token: AddressLike,
+    opId: BigNumberish,
     amount: BigNumberish,
     opArgs: BytesLike,
   ]
   export type OutputTuple = [
     to: string,
-    denom: string,
-    opId: bigint,
     token: string,
+    opId: bigint,
     amount: bigint,
     opArgs: string,
   ]
   export interface OutputObject {
     to: string
-    denom: string
-    opId: bigint
     token: string
+    opId: bigint
     amount: bigint
     opArgs: string
   }
@@ -196,8 +190,6 @@ export interface Gateway extends BaseContract {
     event?: TCEvent,
   ): Promise<this>
 
-  dmgr: TypedContractMethod<[], [string], 'view'>
-
   lmgr: TypedContractMethod<[], [string], 'view'>
 
   owner: TypedContractMethod<[], [string], 'view'>
@@ -230,9 +222,6 @@ export interface Gateway extends BaseContract {
     key: string | FunctionFragment,
   ): T
 
-  getFunction(
-    nameOrSignature: 'dmgr',
-  ): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'lmgr',
   ): TypedContractMethod<[], [string], 'view'>
@@ -280,7 +269,7 @@ export interface Gateway extends BaseContract {
   >
 
   filters: {
-    'InitOperation(address,address,uint256,address,uint256,bytes)': TypedContractEvent<
+    'InitOperation(address,address,uint256,uint256,bytes)': TypedContractEvent<
       InitOperationEvent.InputTuple,
       InitOperationEvent.OutputTuple,
       InitOperationEvent.OutputObject

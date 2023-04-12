@@ -5,7 +5,6 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Owned} from "@solmate/auth/Owned.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
 
-import {DenomManager} from "@src/DenomManager.sol";
 import {LiquidityManager} from "@src/LiquidityManager.sol";
 import {Operation, Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
@@ -17,50 +16,36 @@ import {Utils} from "@src/Utils.sol";
  */
 contract Gateway is Owned {
     LiquidityManager public lmgr;
-    DenomManager public dmgr;
 
     /**
      * @param to destination address of this operation
-     * @param denom converted token denomination that Mitosis can recognize
-     * @param opId operation id
      * @param token original token address
      * @param amount amount of token
+     * @param opId operation id
      * @param opArgs operation arguments
      * @dev for opId, opArgs, you must register them to Mitosis through the governance
      */
-    event InitOperation(
-        address indexed to, address indexed denom, uint256 indexed opId, address token, uint256 amount, bytes opArgs
-    );
+    event InitOperation(address indexed to, address indexed token, uint256 indexed opId, uint256 amount, bytes opArgs);
 
     /**
      * @param _lmgr address of liquidity manager
-     * @param _dmgr address of denom manager
      */
-    constructor(LiquidityManager _lmgr, DenomManager _dmgr) Owned(msg.sender) {
+    constructor(LiquidityManager _lmgr) Owned(msg.sender) {
         lmgr = _lmgr;
-        dmgr = _dmgr;
     }
+
     /**
      * @notice execute operation to dest chain. This can be executed with msg.value or not.
      * @param _to destination address of this operation
      * @param _op operation data
      */
-
     function send(address _to, Operation memory _op) public payable {
         if (msg.value > 0) {
-            address token = dmgr.ETH();
-            address denom = dmgr.convert(token);
-
             // deposit ETH
             lmgr.deposit{value: msg.value}(_to);
-
-            emit InitOperation(_to, denom, _op.id, token, msg.value, _op.args);
-        } else {
-            address token = dmgr.NONE();
-            address denom = dmgr.convert(token);
-
-            emit InitOperation(_to, denom, _op.id, token, msg.value, _op.args);
         }
+
+        emit InitOperation(_to, address(0x0), _op.id, msg.value, _op.args);
     }
 
     /**
@@ -84,9 +69,7 @@ contract Gateway is Owned {
         token.approve(address(lmgr), _token.amount);
         lmgr.deposit(msg.sender, _token);
 
-        address denom = dmgr.convert(_token.addr);
-
-        emit InitOperation(_to, denom, _op.id, _token.addr, _token.amount, _op.args);
+        emit InitOperation(_to, _token.addr, _op.id, _token.amount, _op.args);
     }
 
     /**
@@ -111,8 +94,6 @@ contract Gateway is Owned {
         token.approve(address(lmgr), _token.amount);
         lmgr.deposit(msg.sender, Token(_token.addr, _token.amount));
 
-        address denom = dmgr.convert(_token.addr);
-
-        emit InitOperation(_to, denom, _op.id, _token.addr, _token.amount, _op.args);
+        emit InitOperation(_to, _token.addr, _op.id, _token.amount, _op.args);
     }
 }
