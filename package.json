@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "fmt": "prettier --write types/*.ts && tsc -p .",
-    "typegen": "typechain --target ethers-v6 --out-dir types out/DenomManager.sol/*.json out/Gateway.sol/*.json out/LiquidityManager.sol/*.json"
+    "typegen": "typechain --target ethers-v6 --out-dir types out/Gateway.sol/*.json out/LiquidityManager.sol/*.json"
   },
   "dependencies": {
     "ethers": "^6.1.0"
