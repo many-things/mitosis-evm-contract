@@ -1,7 +1,7 @@
 build:
 	@forge build
 	@yarn typegen
-	@yarn build
+	@yarn fmt
 
 deploy-goerli: build
 	@(MNEMONIC="$(GOERLI_DEPLOYER_KEY)" forge script script/deploy.sol:Deploy \
