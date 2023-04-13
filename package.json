@@ -10,7 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "fmt": "prettier --write types/*.ts && tsc -p .",
+    "fmt": "prettier --write types/*.ts",
+    "compile": "tsc -p .",
     "typegen": "typechain --target ethers-v6 --out-dir types out/Gateway.sol/*.json out/LiquidityManager.sol/*.json"
   },
   "dependencies": {

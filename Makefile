@@ -2,6 +2,7 @@ build:
 	@forge build
 	@yarn typegen
 	@yarn fmt
+	@yarn compile
 
 deploy-goerli: build
 	@(MNEMONIC="$(GOERLI_DEPLOYER_KEY)" \
