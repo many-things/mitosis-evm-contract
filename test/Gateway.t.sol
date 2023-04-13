@@ -13,7 +13,9 @@ import {ERC2612} from "@test/ERC2612.sol";
 import {Account, AccountLib} from "@test/Test.sol";
 
 contract GatewayTest is Test {
-    event InitOperation(address indexed to, address indexed token, uint256 indexed opId, uint256 amount, bytes opArgs);
+    event InitOperation(
+        address indexed to, address indexed token, uint256 indexed opId, uint256 amount, bytes[] opArgs
+    );
     event OwnerChanged(address indexed old, address indexed change);
 
     LiquidityManager internal lmgr;
@@ -39,28 +41,39 @@ contract GatewayTest is Test {
     }
 
     function test_send() public {
+        bytes[] memory args = new bytes[](1);
+        args[0] = bytes("hello_world");
+
         vm.expectEmit(true, true, true, true);
-        emit InitOperation(user.addr, address(0x0), 0, 0, bytes("hello_world"));
+        emit InitOperation(user.addr, address(0x0), 0, 0, args);
 
         vm.prank(user.addr);
-        gateway.send(user.addr, Operation(0, bytes("hello_world")));
+
+        gateway.send(user.addr, Operation(0, args));
     }
 
     function test_send_eth() public {
+        bytes[] memory args = new bytes[](1);
+        args[0] = bytes("hello_world");
+
         vm.expectEmit(true, true, true, true);
-        emit InitOperation(user.addr, address(0x0), 0, 1 ether, bytes("hello_world"));
+        emit InitOperation(user.addr, address(0x0), 0, 1 ether, args);
 
         vm.prank(user.addr);
         vm.deal(user.addr, 1 ether);
-        gateway.send{value: 1 ether}(user.addr, Operation(0, bytes("hello_world")));
+
+        gateway.send{value: 1 ether}(user.addr, Operation(0, args));
 
         assertEq(lmgr.balances(user.addr, address(0x1)), 1 ether);
         assertEq(user.addr.balance, 0);
     }
 
     function test_send_erc20() public {
+        bytes[] memory args = new bytes[](1);
+        args[0] = bytes("hello_world");
+
         vm.expectEmit(true, true, true, true);
-        emit InitOperation(user.addr, address(weth), 0, 1 ether, bytes("hello_world"));
+        emit InitOperation(user.addr, address(weth), 0, 1 ether, args);
 
         vm.startPrank(user.addr);
 
@@ -68,7 +81,7 @@ contract GatewayTest is Test {
         weth.deposit{value: 1 ether}();
         weth.approve(address(gateway), 1 ether);
 
-        gateway.send(user.addr, Operation(0, bytes("hello_world")), Token(address(weth), 1 ether));
+        gateway.send(user.addr, Operation(0, args), Token(address(weth), 1 ether));
 
         vm.stopPrank();
 
@@ -79,7 +92,9 @@ contract GatewayTest is Test {
 
     function test_send_erc2612() public {
         vm.expectEmit(true, true, true, true);
-        emit InitOperation(user.addr, address(weth), 0, 1 ether, bytes("hello_world"));
+        bytes[] memory args = new bytes[](1);
+        args[0] = bytes("hello_world");
+        emit InitOperation(user.addr, address(weth), 0, 1 ether, args);
 
         vm.startPrank(user.addr);
 
@@ -88,7 +103,7 @@ contract GatewayTest is Test {
 
         gateway.send(
             user.addr,
-            Operation(0, bytes("hello_world")),
+            Operation(0, args),
             TokenPermit(
                 address(weth),
                 1 ether,

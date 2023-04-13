@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.17;
+pragma abicoder v2;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {Owned} from "@solmate/auth/Owned.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
+import {Address} from "@oz/utils/Address.sol";
 
 import {LiquidityManager} from "@src/LiquidityManager.sol";
 import {Operation, Token, TokenPermit} from "@src/Types.sol";
@@ -15,6 +17,8 @@ import {Utils} from "@src/Utils.sol";
  * @notice This is the main endpoint of the protocol. Validators will listen to events emitted by this contract.
  */
 contract Gateway is Owned {
+    using Address for address;
+
     LiquidityManager public lmgr;
 
     /**
@@ -25,7 +29,9 @@ contract Gateway is Owned {
      * @param opArgs operation arguments
      * @dev for opId, opArgs, you must register them to Mitosis through the governance
      */
-    event InitOperation(address indexed to, address indexed token, uint256 indexed opId, uint256 amount, bytes opArgs);
+    event InitOperation(
+        address indexed to, address indexed token, uint256 indexed opId, uint256 amount, bytes[] opArgs
+    );
 
     /**
      * @param _lmgr address of liquidity manager
@@ -95,5 +101,78 @@ contract Gateway is Owned {
         lmgr.deposit(msg.sender, Token(_token.addr, _token.amount));
 
         emit InitOperation(_to, _token.addr, _op.id, _token.amount, _op.args);
+    }
+
+    struct ExecuteFund {
+        address token;
+        uint256 value;
+    }
+
+    struct ExecuteCalldata {
+        address to; // EOA / CA
+        address token;
+        uint256 value;
+        bytes data; // calldata
+    }
+
+    struct ExecutePayload {
+        ExecuteFund[] funds;
+        ExecuteCalldata[] inner;
+    }
+
+    struct ExecuteResult {
+        bool success;
+        bytes returndata;
+    }
+
+    event ExecuteOperation(address indexed owner, ExecuteResult[] results);
+
+    function execute(ExecutePayload memory _payload, bytes memory _signature) public {
+        (uint8 v, bytes32 r, bytes32 s) = Utils.unwrapSig(_signature);
+
+        address recovered = ecrecover(keccak256(abi.encode(_payload)), v, r, s);
+        require(recovered == owner, "invalid signature");
+
+        for (uint256 i = 0; i < _payload.funds.length; i++) {
+            ExecuteFund memory fund = _payload.funds[i];
+
+            lmgr.withdraw(Token(fund.token, fund.value));
+        }
+        // TODO: seal liquidity manager to prevent over-paying
+
+        ExecuteResult[] memory results = new ExecuteResult[](_payload.inner.length);
+        for (uint256 i = 0; i < _payload.inner.length; i++) {
+            ExecuteCalldata memory inner = _payload.inner[i];
+
+            if (inner.token == address(0x0)) {
+                // handle eth
+                (bool success, bytes memory returndata) = inner.to.call{value: inner.value}(inner.data);
+                results[i] = ExecuteResult(success, returndata);
+            } else {
+                // handle erc20
+                (bool success, bytes memory returndata) = inner.to.call(inner.data);
+                results[i] = ExecuteResult(success, returndata);
+            }
+        }
+
+        // claim back remainings
+        for (uint256 i = 0; i < _payload.funds.length; i++) {
+            ExecuteFund memory fund = _payload.funds[i];
+
+            if (fund.token == address(0x1)) {
+                uint256 balance = address(this).balance;
+                if (address(this).balance > 0) {
+                    lmgr.deposit{value: balance}();
+                }
+            } else {
+                uint256 balance = ERC20(fund.token).balanceOf(address(this));
+                if (balance > 0) {
+                    ERC20(fund.token).approve(address(lmgr), balance);
+                    lmgr.deposit(Token(fund.token, balance));
+                }
+            }
+        }
+
+        emit ExecuteOperation(owner, results);
     }
 }

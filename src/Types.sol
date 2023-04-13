@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 struct Operation {
     uint256 id;
-    bytes args;
+    bytes[] args;
 }
 
 struct Token {
