@@ -23,11 +23,18 @@ import type {
   TypedContractMethod,
 } from './common'
 
-export type OperationStruct = { id: BigNumberish; args: BytesLike }
+export type OperationStruct = { id: BigNumberish; args: BytesLike[] }
 
-export type OperationStructOutput = [id: bigint, args: string] & {
+export type OperationStructOutput = [id: bigint, args: string[]] & {
   id: bigint
-  args: string
+  args: string[]
+}
+
+export type TokenStruct = { addr: AddressLike; amount: BigNumberish }
+
+export type TokenStructOutput = [addr: string, amount: bigint] & {
+  addr: string
+  amount: bigint
 }
 
 export type TokenPermitStruct = {
@@ -44,65 +51,127 @@ export type TokenPermitStructOutput = [
   signature: string,
 ] & { addr: string; amount: bigint; deadline: bigint; signature: string }
 
-export type TokenStruct = { addr: AddressLike; amount: BigNumberish }
+export declare namespace Gateway {
+  export type ExecuteResultStruct = { success: boolean; returndata: BytesLike }
 
-export type TokenStructOutput = [addr: string, amount: bigint] & {
-  addr: string
-  amount: bigint
+  export type ExecuteResultStructOutput = [
+    success: boolean,
+    returndata: string,
+  ] & { success: boolean; returndata: string }
+
+  export type ExecuteFundStruct = { token: AddressLike; value: BigNumberish }
+
+  export type ExecuteFundStructOutput = [token: string, value: bigint] & {
+    token: string
+    value: bigint
+  }
+
+  export type ExecuteCalldataStruct = {
+    to: AddressLike
+    value: BigNumberish
+    data: BytesLike
+  }
+
+  export type ExecuteCalldataStructOutput = [
+    to: string,
+    value: bigint,
+    data: string,
+  ] & { to: string; value: bigint; data: string }
+
+  export type ExecutePayloadStruct = {
+    funds: Gateway.ExecuteFundStruct[]
+    inner: Gateway.ExecuteCalldataStruct[]
+  }
+
+  export type ExecutePayloadStructOutput = [
+    funds: Gateway.ExecuteFundStructOutput[],
+    inner: Gateway.ExecuteCalldataStructOutput[],
+  ] & {
+    funds: Gateway.ExecuteFundStructOutput[]
+    inner: Gateway.ExecuteCalldataStructOutput[]
+  }
 }
 
 export interface GatewayInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | 'execute'
       | 'lmgr'
       | 'owner'
-      | 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))'
-      | 'send(address,(uint256,bytes))'
-      | 'send(address,(uint256,bytes),(address,uint256))'
+      | 'send(address,(uint256,bytes[]),(address,uint256))'
+      | 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'
+      | 'send(address,(uint256,bytes[]))'
       | 'transferOwnership',
   ): FunctionFragment
 
   getEvent(
-    nameOrSignatureOrTopic: 'InitOperation' | 'OwnershipTransferred',
+    nameOrSignatureOrTopic:
+      | 'ExecuteOperation'
+      | 'InitOperation'
+      | 'OwnershipTransferred',
   ): EventFragment
 
+  encodeFunctionData(
+    functionFragment: 'execute',
+    values: [Gateway.ExecutePayloadStruct, BytesLike],
+  ): string
   encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string
   encodeFunctionData(
-    functionFragment: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
+    functionFragment: 'send(address,(uint256,bytes[]),(address,uint256))',
+    values: [AddressLike, OperationStruct, TokenStruct],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
     values: [AddressLike, OperationStruct, TokenPermitStruct],
   ): string
   encodeFunctionData(
-    functionFragment: 'send(address,(uint256,bytes))',
+    functionFragment: 'send(address,(uint256,bytes[]))',
     values: [AddressLike, OperationStruct],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'send(address,(uint256,bytes),(address,uint256))',
-    values: [AddressLike, OperationStruct, TokenStruct],
   ): string
   encodeFunctionData(
     functionFragment: 'transferOwnership',
     values: [AddressLike],
   ): string
 
+  decodeFunctionResult(functionFragment: 'execute', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'lmgr', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
+    functionFragment: 'send(address,(uint256,bytes[]),(address,uint256))',
     data: BytesLike,
   ): Result
   decodeFunctionResult(
-    functionFragment: 'send(address,(uint256,bytes))',
+    functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
     data: BytesLike,
   ): Result
   decodeFunctionResult(
-    functionFragment: 'send(address,(uint256,bytes),(address,uint256))',
+    functionFragment: 'send(address,(uint256,bytes[]))',
     data: BytesLike,
   ): Result
   decodeFunctionResult(
     functionFragment: 'transferOwnership',
     data: BytesLike,
   ): Result
+}
+
+export namespace ExecuteOperationEvent {
+  export type InputTuple = [
+    owner: AddressLike,
+    results: Gateway.ExecuteResultStruct[],
+  ]
+  export type OutputTuple = [
+    owner: string,
+    results: Gateway.ExecuteResultStructOutput[],
+  ]
+  export interface OutputObject {
+    owner: string
+    results: Gateway.ExecuteResultStructOutput[]
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+  export type Filter = TypedDeferredTopicFilter<Event>
+  export type Log = TypedEventLog<Event>
+  export type LogDescription = TypedLogDescription<Event>
 }
 
 export namespace InitOperationEvent {
@@ -111,21 +180,21 @@ export namespace InitOperationEvent {
     token: AddressLike,
     opId: BigNumberish,
     amount: BigNumberish,
-    opArgs: BytesLike,
+    opArgs: BytesLike[],
   ]
   export type OutputTuple = [
     to: string,
     token: string,
     opId: bigint,
     amount: bigint,
-    opArgs: string,
+    opArgs: string[],
   ]
   export interface OutputObject {
     to: string
     token: string
     opId: bigint
     amount: bigint
-    opArgs: string
+    opArgs: string[]
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
   export type Filter = TypedDeferredTopicFilter<Event>
@@ -190,26 +259,32 @@ export interface Gateway extends BaseContract {
     event?: TCEvent,
   ): Promise<this>
 
+  execute: TypedContractMethod<
+    [_payload: Gateway.ExecutePayloadStruct, _signature: BytesLike],
+    [void],
+    'nonpayable'
+  >
+
   lmgr: TypedContractMethod<[], [string], 'view'>
 
   owner: TypedContractMethod<[], [string], 'view'>
 
-  'send(address,(uint256,bytes),(address,uint256,uint256,bytes))': TypedContractMethod<
+  'send(address,(uint256,bytes[]),(address,uint256))': TypedContractMethod<
+    [_to: AddressLike, _op: OperationStruct, _token: TokenStruct],
+    [void],
+    'nonpayable'
+  >
+
+  'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))': TypedContractMethod<
     [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
     [void],
     'nonpayable'
   >
 
-  'send(address,(uint256,bytes))': TypedContractMethod<
+  'send(address,(uint256,bytes[]))': TypedContractMethod<
     [_to: AddressLike, _op: OperationStruct],
     [void],
     'payable'
-  >
-
-  'send(address,(uint256,bytes),(address,uint256))': TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenStruct],
-    [void],
-    'nonpayable'
   >
 
   transferOwnership: TypedContractMethod<
@@ -223,36 +298,50 @@ export interface Gateway extends BaseContract {
   ): T
 
   getFunction(
+    nameOrSignature: 'execute',
+  ): TypedContractMethod<
+    [_payload: Gateway.ExecutePayloadStruct, _signature: BytesLike],
+    [void],
+    'nonpayable'
+  >
+  getFunction(
     nameOrSignature: 'lmgr',
   ): TypedContractMethod<[], [string], 'view'>
   getFunction(
     nameOrSignature: 'owner',
   ): TypedContractMethod<[], [string], 'view'>
   getFunction(
-    nameOrSignature: 'send(address,(uint256,bytes),(address,uint256,uint256,bytes))',
-  ): TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'send(address,(uint256,bytes))',
-  ): TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct],
-    [void],
-    'payable'
-  >
-  getFunction(
-    nameOrSignature: 'send(address,(uint256,bytes),(address,uint256))',
+    nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256))',
   ): TypedContractMethod<
     [_to: AddressLike, _op: OperationStruct, _token: TokenStruct],
     [void],
     'nonpayable'
   >
   getFunction(
+    nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
+  ): TypedContractMethod<
+    [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
+    [void],
+    'nonpayable'
+  >
+  getFunction(
+    nameOrSignature: 'send(address,(uint256,bytes[]))',
+  ): TypedContractMethod<
+    [_to: AddressLike, _op: OperationStruct],
+    [void],
+    'payable'
+  >
+  getFunction(
     nameOrSignature: 'transferOwnership',
   ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>
 
+  getEvent(
+    key: 'ExecuteOperation',
+  ): TypedContractEvent<
+    ExecuteOperationEvent.InputTuple,
+    ExecuteOperationEvent.OutputTuple,
+    ExecuteOperationEvent.OutputObject
+  >
   getEvent(
     key: 'InitOperation',
   ): TypedContractEvent<
@@ -269,7 +358,18 @@ export interface Gateway extends BaseContract {
   >
 
   filters: {
-    'InitOperation(address,address,uint256,uint256,bytes)': TypedContractEvent<
+    'ExecuteOperation(address,tuple[])': TypedContractEvent<
+      ExecuteOperationEvent.InputTuple,
+      ExecuteOperationEvent.OutputTuple,
+      ExecuteOperationEvent.OutputObject
+    >
+    ExecuteOperation: TypedContractEvent<
+      ExecuteOperationEvent.InputTuple,
+      ExecuteOperationEvent.OutputTuple,
+      ExecuteOperationEvent.OutputObject
+    >
+
+    'InitOperation(address,address,uint256,uint256,bytes[])': TypedContractEvent<
       InitOperationEvent.InputTuple,
       InitOperationEvent.OutputTuple,
       InitOperationEvent.OutputObject
