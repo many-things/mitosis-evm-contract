@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import "@std/Test.sol";
 
 import {ERC20, WETH} from "@solmate/tokens/WETH.sol";
-
 import {LiquidityManager} from "@src/LiquidityManager.sol";
 import {Gateway} from "@src/Gateway.sol";
 import {Token, TokenPermit, Operation} from "@src/Types.sol";
@@ -22,21 +21,30 @@ contract GatewayTest is Test {
     Gateway internal gateway;
     WETH internal weth;
 
+    Account internal owner;
     Account internal user;
 
     function setUp() public {
+        owner = AccountLib.create(vm, 0x2);
+        user = AccountLib.create(vm, 0x3);
+
+        vm.startPrank(owner.addr);
+
         lmgr = new LiquidityManager();
         gateway = new Gateway(lmgr);
+        lmgr.grantRole(lmgr.GATEWAY_ROLE(), address(gateway));
 
         weth = new WETH();
 
-        user = AccountLib.create(vm, 0x2);
+        vm.stopPrank();
     }
 
     function test_change_owner() public {
-        assertEq(gateway.owner(), address(this));
+        assertEq(gateway.owner(), owner.addr);
 
+        vm.prank(owner.addr);
         gateway.transferOwnership(user.addr);
+
         assertEq(gateway.owner(), user.addr);
     }
 
@@ -117,5 +125,45 @@ contract GatewayTest is Test {
         assertEq(lmgr.balances(user.addr, address(weth)), 1 ether);
         assertEq(weth.balanceOf(address(lmgr)), 1 ether);
         assertEq(weth.balanceOf(user.addr), 0);
+    }
+
+    function test_execute() public {
+        vm.startPrank(user.addr);
+        vm.deal(user.addr, 1 ether);
+
+        weth.deposit{value: 1 ether}();
+
+        // fuel 1 ether to liquidity manager
+        lmgr.deposit(
+            address(gateway),
+            TokenPermit(
+                address(weth),
+                1 ether,
+                block.timestamp + 1,
+                ERC2612.permit(vm, weth, user, address(lmgr), 1 ether, block.timestamp + 1)
+            )
+        );
+
+        vm.stopPrank();
+
+        Gateway.ExecuteFund[] memory funds = new Gateway.ExecuteFund[](1);
+        funds[0] = Gateway.ExecuteFund(address(weth), 1 ether);
+
+        Gateway.ExecuteCalldata[] memory inner = new Gateway.ExecuteCalldata[](1);
+        inner[0] = Gateway.ExecuteCalldata(
+            address(weth), 0, abi.encodeWithSelector(ERC20.transfer.selector, user.addr, 1 ether)
+        );
+
+        Gateway.ExecutePayload memory payload = Gateway.ExecutePayload(funds, inner);
+
+        bytes32 digest = keccak256(abi.encode(payload));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(owner.key, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        gateway.execute(payload, signature);
+
+        assertEq(lmgr.balances(address(gateway), address(weth)), 0);
+        assertEq(weth.balanceOf(address(lmgr)), 0);
+        assertEq(weth.balanceOf(user.addr), 1 ether);
     }
 }

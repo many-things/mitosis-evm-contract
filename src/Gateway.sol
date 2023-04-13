@@ -11,6 +11,8 @@ import {LiquidityManager} from "@src/LiquidityManager.sol";
 import {Operation, Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
 
+// import {console} from "@std/Console.sol";
+
 /**
  * @title Gateway
  * @author @byeongsu-hong<hong@byeongsu.dev>
@@ -110,7 +112,6 @@ contract Gateway is Owned {
 
     struct ExecuteCalldata {
         address to; // EOA / CA
-        address token;
         uint256 value;
         bytes data; // calldata
     }
@@ -144,15 +145,8 @@ contract Gateway is Owned {
         for (uint256 i = 0; i < _payload.inner.length; i++) {
             ExecuteCalldata memory inner = _payload.inner[i];
 
-            if (inner.token == address(0x0)) {
-                // handle eth
-                (bool success, bytes memory returndata) = inner.to.call{value: inner.value}(inner.data);
-                results[i] = ExecuteResult(success, returndata);
-            } else {
-                // handle erc20
-                (bool success, bytes memory returndata) = inner.to.call(inner.data);
-                results[i] = ExecuteResult(success, returndata);
-            }
+            (bool success, bytes memory returndata) = inner.to.call{value: inner.value}(inner.data);
+            results[i] = ExecuteResult(success, returndata);
         }
 
         // claim back remainings
