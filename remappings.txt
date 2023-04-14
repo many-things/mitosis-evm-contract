@@ -1,5 +1,6 @@
 @std=lib/forge-std/src/
 @solmate=lib/solmate/src/
 @oz=lib/openzeppelin-contracts/contracts/
+@p2s=lib/protobuf3-solidity-lib/contracts/
 @src/=src/
 @test/=test/
