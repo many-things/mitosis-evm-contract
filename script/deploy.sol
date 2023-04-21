@@ -3,8 +3,8 @@ pragma solidity ^0.8.13;
 
 import "@std/Script.sol";
 
-import {Gateway} from "@src/Gateway.sol";
-import {LiquidityManager} from "@src/LiquidityManager.sol";
+import {Vault} from "@src/Vault.sol";
+import {Liquidity} from "@src/Liquidity.sol";
 
 contract Deploy is Script {
     function setUp() public {}
@@ -16,8 +16,8 @@ contract Deploy is Script {
 
         vm.startBroadcast(privateKey);
 
-        LiquidityManager lmgr = new LiquidityManager();
-        new Gateway(lmgr);
+        Liquidity lmgr = new Liquidity("TODO", address(0x0));
+        new Vault(lmgr);
 
         vm.stopBroadcast();
     }

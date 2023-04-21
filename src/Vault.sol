@@ -7,21 +7,21 @@ import {Owned} from "@solmate/auth/Owned.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
 import {Address} from "@oz/utils/Address.sol";
 
-import {LiquidityManager} from "@src/LiquidityManager.sol";
+import {Liquidity} from "@src/Liquidity.sol";
 import {Operation, Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
 
 // import {console} from "@std/Console.sol";
 
 /**
- * @title Gateway
+ * @title Vault
  * @author @byeongsu-hong<hong@byeongsu.dev>
  * @notice This is the main endpoint of the protocol. Validators will listen to events emitted by this contract.
  */
-contract Gateway is Owned {
+contract Vault is Owned {
     using Address for address;
 
-    LiquidityManager public lmgr;
+    Liquidity public lmgr;
 
     /**
      * @param to destination address of this operation
@@ -38,22 +38,8 @@ contract Gateway is Owned {
     /**
      * @param _lmgr address of liquidity manager
      */
-    constructor(LiquidityManager _lmgr) Owned(msg.sender) {
+    constructor(Liquidity _lmgr) Owned(msg.sender) {
         lmgr = _lmgr;
-    }
-
-    /**
-     * @notice execute operation to dest chain. This can be executed with msg.value or not.
-     * @param _to destination address of this operation
-     * @param _op operation data
-     */
-    function send(address _to, Operation memory _op) public payable {
-        if (msg.value > 0) {
-            // deposit ETH
-            lmgr.deposit{value: msg.value}(_to);
-        }
-
-        emit InitOperation(_to, address(0x0), _op.id, msg.value, _op.args);
     }
 
     /**
@@ -75,7 +61,7 @@ contract Gateway is Owned {
 
         // approve & deposit
         token.approve(address(lmgr), _token.amount);
-        lmgr.deposit(msg.sender, _token);
+        lmgr.deposit(msg.sender, _token.amount);
 
         emit InitOperation(_to, _token.addr, _op.id, _token.amount, _op.args);
     }
@@ -100,7 +86,7 @@ contract Gateway is Owned {
 
         // approve & deposit
         token.approve(address(lmgr), _token.amount);
-        lmgr.deposit(msg.sender, Token(_token.addr, _token.amount));
+        lmgr.deposit(msg.sender, _token.amount);
 
         emit InitOperation(_to, _token.addr, _op.id, _token.amount, _op.args);
     }
@@ -137,7 +123,7 @@ contract Gateway is Owned {
         for (uint256 i = 0; i < _payload.funds.length; i++) {
             ExecuteFund memory fund = _payload.funds[i];
 
-            lmgr.withdraw(Token(fund.token, fund.value));
+            lmgr.withdraw(address(this), fund.value);
         }
         // TODO: seal liquidity manager to prevent over-paying
 
@@ -153,17 +139,10 @@ contract Gateway is Owned {
         for (uint256 i = 0; i < _payload.funds.length; i++) {
             ExecuteFund memory fund = _payload.funds[i];
 
-            if (fund.token == address(0x1)) {
-                uint256 balance = address(this).balance;
-                if (address(this).balance > 0) {
-                    lmgr.deposit{value: balance}();
-                }
-            } else {
-                uint256 balance = ERC20(fund.token).balanceOf(address(this));
-                if (balance > 0) {
-                    ERC20(fund.token).approve(address(lmgr), balance);
-                    lmgr.deposit(Token(fund.token, balance));
-                }
+            uint256 balance = ERC20(fund.token).balanceOf(address(this));
+            if (balance > 0) {
+                ERC20(fund.token).approve(address(lmgr), balance);
+                lmgr.deposit(address(this), balance);
             }
         }
 
