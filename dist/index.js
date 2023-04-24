@@ -23,9 +23,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LiquidityManager__factory = exports.Gateway__factory = exports.factories = void 0;
+exports.LiquidityTest__factory = exports.Liquidity__factory = exports.VaultTest__factory = exports.Vault__factory = exports.factories = void 0;
 exports.factories = __importStar(require("./factories"));
-var Gateway__factory_1 = require("./factories/Gateway__factory");
-Object.defineProperty(exports, "Gateway__factory", { enumerable: true, get: function () { return Gateway__factory_1.Gateway__factory; } });
-var LiquidityManager__factory_1 = require("./factories/LiquidityManager__factory");
-Object.defineProperty(exports, "LiquidityManager__factory", { enumerable: true, get: function () { return LiquidityManager__factory_1.LiquidityManager__factory; } });
+var Vault__factory_1 = require("./factories/Vault.sol/Vault__factory");
+Object.defineProperty(exports, "Vault__factory", { enumerable: true, get: function () { return Vault__factory_1.Vault__factory; } });
+var VaultTest__factory_1 = require("./factories/Vault.sol/VaultTest__factory");
+Object.defineProperty(exports, "VaultTest__factory", { enumerable: true, get: function () { return VaultTest__factory_1.VaultTest__factory; } });
+var Liquidity__factory_1 = require("./factories/Liquidity.sol/Liquidity__factory");
+Object.defineProperty(exports, "Liquidity__factory", { enumerable: true, get: function () { return Liquidity__factory_1.Liquidity__factory; } });
+var LiquidityTest__factory_1 = require("./factories/Liquidity.sol/LiquidityTest__factory");
+Object.defineProperty(exports, "LiquidityTest__factory", { enumerable: true, get: function () { return LiquidityTest__factory_1.LiquidityTest__factory; } });

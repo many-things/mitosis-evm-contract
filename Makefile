@@ -15,6 +15,12 @@ deploy-goerli: build
 			--etherscan-api-key $(ETHERSCAN_API_KEY) \
 			--verify)
 
+deploy-goerli-dry: build
+	@(MNEMONIC="$(GOERLI_DEPLOYER_KEY)" \
+		forge script script/deploy.sol:Deploy \
+			--rpc-url $(GOERLI_RPC_ENDPOINT) \
+			--chain 5)
+
 deploy-mainnet: build
 	@(MNEMONIC="$(MAINNET_DEPLOYER_KEY)" \
 		forge script script/deploy.sol:Deploy \
@@ -23,3 +29,9 @@ deploy-mainnet: build
 			--chain 1 \
 			--etherscan-api-key $(ETHERSCAN_API_KEY) \
 			--verify)
+
+deploy-mainnet-dry: build
+	@(MNEMONIC="$(MAINNET_DEPLOYER_KEY)" \
+		forge script script/deploy.sol:Deploy \
+			--rpc-url $(MAINNET_RPC_ENDPOINT) \
+			--chain 1)

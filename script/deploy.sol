@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@std/Script.sol";
+import {ERC20} from "@oz/token/ERC20/ERC20.sol";
 
 import {Vault} from "@src/Vault.sol";
 import {Liquidity} from "@src/Liquidity.sol";
@@ -16,9 +17,14 @@ contract Deploy is Script {
 
         vm.startBroadcast(privateKey);
 
-        Liquidity lmgr = new Liquidity("TODO", address(0x0));
-        new Vault(lmgr);
+        ERC20 usdc = new ERC20("USDC", "USD//C");
+        Liquidity lmgr = new Liquidity("USDC", address(usdc));
+        Vault vault = new Vault(lmgr);
 
         vm.stopBroadcast();
+
+        console.log("usdc  = ", address(usdc));
+        console.log("lmgr  = ", address(lmgr));
+        console.log("vault = ", address(vault));
     }
 }
