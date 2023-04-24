@@ -1,6 +1,10 @@
 .PHONY: build
 
-build:
+clean:
+	@rm -rf types
+	@rm -rf dist
+
+build: clean
 	@forge build
 	@yarn typegen
 	@yarn fmt
