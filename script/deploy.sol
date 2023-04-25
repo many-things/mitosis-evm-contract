@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@std/Script.sol";
-import {ERC20} from "@oz/token/ERC20/ERC20.sol";
+import {ERC20PresetMinterPauser as ERC20} from "@oz/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 import {Vault} from "@src/Vault.sol";
 import {Liquidity} from "@src/Liquidity.sol";
