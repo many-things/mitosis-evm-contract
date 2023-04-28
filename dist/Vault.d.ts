@@ -1,5 +1,5 @@
-import type { BaseContract, BigNumberish, BytesLike, FunctionFragment, Result, Interface, EventFragment, AddressLike, ContractRunner, ContractMethod, Listener } from "ethers";
-import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, TypedLogDescription, TypedListener, TypedContractMethod } from "../common";
+import type { BaseContract, BigNumberish, BytesLike, FunctionFragment, Result, Interface, EventFragment, AddressLike, ContractRunner, ContractMethod, Listener } from 'ethers';
+import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, TypedLogDescription, TypedListener, TypedContractMethod } from './common';
 export type OperationStruct = {
     id: BigNumberish;
     args: BytesLike[];
@@ -80,20 +80,20 @@ export declare namespace Vault {
     };
 }
 export interface VaultInterface extends Interface {
-    getFunction(nameOrSignature: "execute" | "lmgr" | "owner" | "send(address,(uint256,bytes[]),(address,uint256))" | "send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))" | "transferOwnership"): FunctionFragment;
-    getEvent(nameOrSignatureOrTopic: "ExecuteOperation" | "InitOperation" | "OwnershipTransferred"): EventFragment;
-    encodeFunctionData(functionFragment: "execute", values: [Vault.ExecutePayloadStruct, BytesLike]): string;
-    encodeFunctionData(functionFragment: "lmgr", values?: undefined): string;
-    encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-    encodeFunctionData(functionFragment: "send(address,(uint256,bytes[]),(address,uint256))", values: [AddressLike, OperationStruct, TokenStruct]): string;
-    encodeFunctionData(functionFragment: "send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))", values: [AddressLike, OperationStruct, TokenPermitStruct]): string;
-    encodeFunctionData(functionFragment: "transferOwnership", values: [AddressLike]): string;
-    decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "lmgr", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "send(address,(uint256,bytes[]),(address,uint256))", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
+    getFunction(nameOrSignature: 'execute' | 'lmgr' | 'owner' | 'send(address,(uint256,bytes[]),(address,uint256))' | 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))' | 'transferOwnership'): FunctionFragment;
+    getEvent(nameOrSignatureOrTopic: 'ExecuteOperation' | 'InitOperation' | 'OwnershipTransferred'): EventFragment;
+    encodeFunctionData(functionFragment: 'execute', values: [Vault.ExecutePayloadStruct, BytesLike]): string;
+    encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+    encodeFunctionData(functionFragment: 'send(address,(uint256,bytes[]),(address,uint256))', values: [AddressLike, OperationStruct, TokenStruct]): string;
+    encodeFunctionData(functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))', values: [AddressLike, OperationStruct, TokenPermitStruct]): string;
+    encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
+    decodeFunctionResult(functionFragment: 'execute', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'lmgr', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'send(address,(uint256,bytes[]),(address,uint256))', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 }
 export declare namespace ExecuteOperationEvent {
     type InputTuple = [
@@ -171,61 +171,61 @@ export interface Vault extends BaseContract {
         _signature: BytesLike
     ], [
         void
-    ], "nonpayable">;
-    lmgr: TypedContractMethod<[], [string], "view">;
-    owner: TypedContractMethod<[], [string], "view">;
-    "send(address,(uint256,bytes[]),(address,uint256))": TypedContractMethod<[
+    ], 'nonpayable'>;
+    lmgr: TypedContractMethod<[], [string], 'view'>;
+    owner: TypedContractMethod<[], [string], 'view'>;
+    'send(address,(uint256,bytes[]),(address,uint256))': TypedContractMethod<[
         _to: AddressLike,
         _op: OperationStruct,
         _token: TokenStruct
     ], [
         void
-    ], "nonpayable">;
-    "send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))": TypedContractMethod<[
+    ], 'nonpayable'>;
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))': TypedContractMethod<[
         _to: AddressLike,
         _op: OperationStruct,
         _token: TokenPermitStruct
     ], [
         void
-    ], "nonpayable">;
+    ], 'nonpayable'>;
     transferOwnership: TypedContractMethod<[
         newOwner: AddressLike
     ], [
         void
-    ], "nonpayable">;
+    ], 'nonpayable'>;
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
-    getFunction(nameOrSignature: "execute"): TypedContractMethod<[
+    getFunction(nameOrSignature: 'execute'): TypedContractMethod<[
         _payload: Vault.ExecutePayloadStruct,
         _signature: BytesLike
     ], [
         void
-    ], "nonpayable">;
-    getFunction(nameOrSignature: "lmgr"): TypedContractMethod<[], [string], "view">;
-    getFunction(nameOrSignature: "owner"): TypedContractMethod<[], [string], "view">;
-    getFunction(nameOrSignature: "send(address,(uint256,bytes[]),(address,uint256))"): TypedContractMethod<[
+    ], 'nonpayable'>;
+    getFunction(nameOrSignature: 'lmgr'): TypedContractMethod<[], [string], 'view'>;
+    getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+    getFunction(nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256))'): TypedContractMethod<[
         _to: AddressLike,
         _op: OperationStruct,
         _token: TokenStruct
     ], [
         void
-    ], "nonpayable">;
-    getFunction(nameOrSignature: "send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))"): TypedContractMethod<[
+    ], 'nonpayable'>;
+    getFunction(nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'): TypedContractMethod<[
         _to: AddressLike,
         _op: OperationStruct,
         _token: TokenPermitStruct
     ], [
         void
-    ], "nonpayable">;
-    getFunction(nameOrSignature: "transferOwnership"): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-    getEvent(key: "ExecuteOperation"): TypedContractEvent<ExecuteOperationEvent.InputTuple, ExecuteOperationEvent.OutputTuple, ExecuteOperationEvent.OutputObject>;
-    getEvent(key: "InitOperation"): TypedContractEvent<InitOperationEvent.InputTuple, InitOperationEvent.OutputTuple, InitOperationEvent.OutputObject>;
-    getEvent(key: "OwnershipTransferred"): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
+    ], 'nonpayable'>;
+    getFunction(nameOrSignature: 'transferOwnership'): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
+    getEvent(key: 'ExecuteOperation'): TypedContractEvent<ExecuteOperationEvent.InputTuple, ExecuteOperationEvent.OutputTuple, ExecuteOperationEvent.OutputObject>;
+    getEvent(key: 'InitOperation'): TypedContractEvent<InitOperationEvent.InputTuple, InitOperationEvent.OutputTuple, InitOperationEvent.OutputObject>;
+    getEvent(key: 'OwnershipTransferred'): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
     filters: {
-        "ExecuteOperation(address,tuple[])": TypedContractEvent<ExecuteOperationEvent.InputTuple, ExecuteOperationEvent.OutputTuple, ExecuteOperationEvent.OutputObject>;
+        'ExecuteOperation(address,tuple[])': TypedContractEvent<ExecuteOperationEvent.InputTuple, ExecuteOperationEvent.OutputTuple, ExecuteOperationEvent.OutputObject>;
         ExecuteOperation: TypedContractEvent<ExecuteOperationEvent.InputTuple, ExecuteOperationEvent.OutputTuple, ExecuteOperationEvent.OutputObject>;
-        "InitOperation(address,address,uint256,uint256,bytes[])": TypedContractEvent<InitOperationEvent.InputTuple, InitOperationEvent.OutputTuple, InitOperationEvent.OutputObject>;
+        'InitOperation(address,address,uint256,uint256,bytes[])': TypedContractEvent<InitOperationEvent.InputTuple, InitOperationEvent.OutputTuple, InitOperationEvent.OutputObject>;
         InitOperation: TypedContractEvent<InitOperationEvent.InputTuple, InitOperationEvent.OutputTuple, InitOperationEvent.OutputObject>;
-        "OwnershipTransferred(address,address)": TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
+        'OwnershipTransferred(address,address)': TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
         OwnershipTransferred: TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
     };
 }

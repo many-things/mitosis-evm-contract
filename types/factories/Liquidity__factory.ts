@@ -11,11 +11,8 @@ import {
   ContractDeployTransaction,
   ContractRunner,
 } from "ethers";
-import type { NonPayableOverrides } from "../../common";
-import type {
-  Liquidity,
-  LiquidityInterface,
-} from "../../Liquidity.sol/Liquidity";
+import type { NonPayableOverrides } from "../common";
+import type { Liquidity, LiquidityInterface } from "../Liquidity";
 
 const _abi = [
   {

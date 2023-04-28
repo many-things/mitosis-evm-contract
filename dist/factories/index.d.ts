@@ -1,2 +1,2 @@
-export * as liquiditySol from "./Liquidity.sol";
-export * as vaultSol from "./Vault.sol";
+export { Liquidity__factory } from "./Liquidity__factory";
+export { Vault__factory } from "./Vault__factory";

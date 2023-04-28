@@ -1,6 +1,6 @@
 import { Signer, ContractFactory, ContractTransactionResponse, AddressLike, ContractDeployTransaction, ContractRunner } from "ethers";
-import type { NonPayableOverrides } from "../../common";
-import type { Liquidity, LiquidityInterface } from "../../Liquidity.sol/Liquidity";
+import type { NonPayableOverrides } from "../common";
+import type { Liquidity, LiquidityInterface } from "../Liquidity";
 type LiquidityConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
 export declare class Liquidity__factory extends ContractFactory {
     constructor(...args: LiquidityConstructorParams);

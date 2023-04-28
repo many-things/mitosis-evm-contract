@@ -11,8 +11,8 @@ import {
   ContractDeployTransaction,
   ContractRunner,
 } from "ethers";
-import type { NonPayableOverrides } from "../../common";
-import type { Vault, VaultInterface } from "../../Vault.sol/Vault";
+import type { NonPayableOverrides } from "../common";
+import type { Vault, VaultInterface } from "../Vault";
 
 const _abi = [
   {
