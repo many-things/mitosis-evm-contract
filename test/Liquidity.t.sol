@@ -8,8 +8,8 @@ import {Strings} from "@oz/utils/Strings.sol";
 import {Liquidity} from "@src/Liquidity.sol";
 import {Token, TokenPermit} from "@src/Types.sol";
 
-import {ERC2612} from "@test/ERC2612.sol";
-import {Account, AccountLib} from "@test/Test.sol";
+import {ERC2612} from "@test/ERC2612.t.sol";
+import {Account, AccountLib} from "@test/Test.t.sol";
 
 contract LiquidityTest is Test {
     Liquidity internal lmgr;

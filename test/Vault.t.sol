@@ -8,8 +8,8 @@ import {Liquidity} from "@src/Liquidity.sol";
 import {Vault} from "@src/Vault.sol";
 import {Token, TokenPermit, Operation} from "@src/Types.sol";
 
-import {ERC2612} from "@test/ERC2612.sol";
-import {Account, AccountLib} from "@test/Test.sol";
+import {ERC2612} from "@test/ERC2612.t.sol";
+import {Account, AccountLib} from "@test/Test.t.sol";
 
 contract VaultTest is Test {
     event InitOperation(
