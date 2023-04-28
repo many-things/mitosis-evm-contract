@@ -1,11 +1,12 @@
 .PHONY: build
 
 clean:
+	@rm -rf out
 	@rm -rf types
 	@rm -rf dist
 
 build: clean
-	@forge build
+	@forge build --skip test --skip script
 	@yarn typegen
 	@yarn fmt
 	@yarn compile
