@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import "@std/Script.sol";
-import {ERC20PresetMinterPauser as ERC20} from "@oz/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
+import {MintBurnERC20} from "@src/Token.sol";
 import {Vault} from "@src/Vault.sol";
 import {Liquidity} from "@src/Liquidity.sol";
 
@@ -17,8 +17,8 @@ contract Deploy is Script {
 
         vm.startBroadcast(privateKey);
 
-        ERC20 usdc = new ERC20("USDC", "USD//C");
-        Liquidity lmgr = new Liquidity("USDC", address(usdc));
+        MintBurnERC20 usdc = new MintBurnERC20("USDC", "USD//C", 6);
+        Liquidity lmgr = new Liquidity("LP_USDC", address(usdc));
         Vault vault = new Vault(lmgr);
 
         vm.stopBroadcast();
