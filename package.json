@@ -12,7 +12,7 @@
   "scripts": {
     "fmt": "prettier --write types/*.ts",
     "compile": "tsc -p .",
-    "typegen": "typechain --target ethers-v6 --out-dir types out/Vault.sol/*.json out/Liquidity.sol/*.json"
+    "typegen": "typechain --target ethers-v6 --out-dir types out/Vault.sol/*.json out/Liquidity.sol/*.json out/Bond.sol/*.json"
   },
   "dependencies": {
     "ethers": "^6.1.0"
