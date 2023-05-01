@@ -4,8 +4,9 @@ pragma solidity ^0.8.13;
 import "@std/Script.sol";
 
 import {MintBurnERC20} from "@src/Token.sol";
-import {Vault} from "@src/Vault.sol";
 import {Liquidity} from "@src/Liquidity.sol";
+import {Bond} from "@src/Bond.sol";
+import {Vault} from "@src/Vault.sol";
 
 contract Deploy is Script {
     function setUp() public {}
@@ -19,12 +20,14 @@ contract Deploy is Script {
 
         MintBurnERC20 usdc = new MintBurnERC20("USDC", "USD//C", 6);
         Liquidity lmgr = new Liquidity("LP_USDC", address(usdc));
+        Bond bond = new Bond(address(lmgr), 3 minutes);
         Vault vault = new Vault(lmgr);
 
         vm.stopBroadcast();
 
         console.log("usdc  = ", address(usdc));
         console.log("lmgr  = ", address(lmgr));
+        console.log("bond  = ", address(bond));
         console.log("vault = ", address(vault));
     }
 }
