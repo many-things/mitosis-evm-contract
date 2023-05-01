@@ -19,7 +19,7 @@ contract BondTest is Test {
 
     function setUp() public {
         weth = new WETH();
-        bond = new Bond(address(weth));
+        bond = new Bond(address(weth), 5 minutes);
 
         user = AccountLib.create(vm, 0x1);
         abuser = AccountLib.create(vm, 0x2);
