@@ -3,29 +3,61 @@
 /* eslint-disable */
 import type {
   BaseContract,
+  BigNumber,
   BigNumberish,
   BytesLike,
-  FunctionFragment,
-  Result,
-  Interface,
-  EventFragment,
-  AddressLike,
-  ContractRunner,
-  ContractMethod,
-  Listener,
+  CallOverrides,
+  ContractTransaction,
+  Overrides,
+  PopulatedTransaction,
+  Signer,
+  utils,
 } from 'ethers'
 import type {
-  TypedContractEvent,
-  TypedDeferredTopicFilter,
-  TypedEventLog,
-  TypedLogDescription,
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
+import type {
+  TypedEventFilter,
+  TypedEvent,
   TypedListener,
-  TypedContractMethod,
+  OnEvent,
+  PromiseOrValue,
 } from './common'
 
-export interface LiquidityInterface extends Interface {
+export interface LiquidityInterface extends utils.Interface {
+  functions: {
+    'DEFAULT_ADMIN_ROLE()': FunctionFragment
+    'DOMAIN_SEPARATOR()': FunctionFragment
+    'GATEWAY_ROLE()': FunctionFragment
+    'allowance(address,address)': FunctionFragment
+    'approve(address,uint256)': FunctionFragment
+    'balanceOf(address)': FunctionFragment
+    'decimals()': FunctionFragment
+    'deposit(address,uint256)': FunctionFragment
+    'deposit(address,uint256,uint256,bytes)': FunctionFragment
+    'getRoleAdmin(bytes32)': FunctionFragment
+    'grantRole(bytes32,address)': FunctionFragment
+    'hasRole(bytes32,address)': FunctionFragment
+    'name()': FunctionFragment
+    'nonces(address)': FunctionFragment
+    'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)': FunctionFragment
+    'renounceRole(bytes32,address)': FunctionFragment
+    'revokeRole(bytes32,address)': FunctionFragment
+    'supportsInterface(bytes4)': FunctionFragment
+    'symbol()': FunctionFragment
+    'token()': FunctionFragment
+    'totalSupply()': FunctionFragment
+    'transfer(address,uint256)': FunctionFragment
+    'transferFrom(address,address,uint256)': FunctionFragment
+    'withdraw(address,uint256,uint256,bytes)': FunctionFragment
+    'withdraw(address,uint256)': FunctionFragment
+  }
+
   getFunction(
-    nameOrSignature:
+    nameOrSignatureOrTopic:
       | 'DEFAULT_ADMIN_ROLE'
       | 'DOMAIN_SEPARATOR'
       | 'GATEWAY_ROLE'
@@ -53,15 +85,6 @@ export interface LiquidityInterface extends Interface {
       | 'withdraw(address,uint256)',
   ): FunctionFragment
 
-  getEvent(
-    nameOrSignatureOrTopic:
-      | 'Approval'
-      | 'RoleAdminChanged'
-      | 'RoleGranted'
-      | 'RoleRevoked'
-      | 'Transfer',
-  ): EventFragment
-
   encodeFunctionData(
     functionFragment: 'DEFAULT_ADMIN_ROLE',
     values?: undefined,
@@ -76,62 +99,70 @@ export interface LiquidityInterface extends Interface {
   ): string
   encodeFunctionData(
     functionFragment: 'allowance',
-    values: [AddressLike, AddressLike],
+    values: [PromiseOrValue<string>, PromiseOrValue<string>],
   ): string
   encodeFunctionData(
     functionFragment: 'approve',
-    values: [AddressLike, BigNumberish],
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
   ): string
   encodeFunctionData(
     functionFragment: 'balanceOf',
-    values: [AddressLike],
+    values: [PromiseOrValue<string>],
   ): string
   encodeFunctionData(functionFragment: 'decimals', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'deposit(address,uint256)',
-    values: [AddressLike, BigNumberish],
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
   ): string
   encodeFunctionData(
     functionFragment: 'deposit(address,uint256,uint256,bytes)',
-    values: [AddressLike, BigNumberish, BigNumberish, BytesLike],
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+    ],
   ): string
   encodeFunctionData(
     functionFragment: 'getRoleAdmin',
-    values: [BytesLike],
+    values: [PromiseOrValue<BytesLike>],
   ): string
   encodeFunctionData(
     functionFragment: 'grantRole',
-    values: [BytesLike, AddressLike],
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
   ): string
   encodeFunctionData(
     functionFragment: 'hasRole',
-    values: [BytesLike, AddressLike],
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
   ): string
   encodeFunctionData(functionFragment: 'name', values?: undefined): string
-  encodeFunctionData(functionFragment: 'nonces', values: [AddressLike]): string
+  encodeFunctionData(
+    functionFragment: 'nonces',
+    values: [PromiseOrValue<string>],
+  ): string
   encodeFunctionData(
     functionFragment: 'permit',
     values: [
-      AddressLike,
-      AddressLike,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
     ],
   ): string
   encodeFunctionData(
     functionFragment: 'renounceRole',
-    values: [BytesLike, AddressLike],
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
   ): string
   encodeFunctionData(
     functionFragment: 'revokeRole',
-    values: [BytesLike, AddressLike],
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>],
   ): string
   encodeFunctionData(
     functionFragment: 'supportsInterface',
-    values: [BytesLike],
+    values: [PromiseOrValue<BytesLike>],
   ): string
   encodeFunctionData(functionFragment: 'symbol', values?: undefined): string
   encodeFunctionData(functionFragment: 'token', values?: undefined): string
@@ -141,19 +172,28 @@ export interface LiquidityInterface extends Interface {
   ): string
   encodeFunctionData(
     functionFragment: 'transfer',
-    values: [AddressLike, BigNumberish],
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
   ): string
   encodeFunctionData(
     functionFragment: 'transferFrom',
-    values: [AddressLike, AddressLike, BigNumberish],
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string
   encodeFunctionData(
     functionFragment: 'withdraw(address,uint256,uint256,bytes)',
-    values: [AddressLike, BigNumberish, BigNumberish, BytesLike],
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+    ],
   ): string
   encodeFunctionData(
     functionFragment: 'withdraw(address,uint256)',
-    values: [AddressLike, BigNumberish],
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
   ): string
 
   decodeFunctionResult(
@@ -214,510 +254,791 @@ export interface LiquidityInterface extends Interface {
     functionFragment: 'withdraw(address,uint256)',
     data: BytesLike,
   ): Result
+
+  events: {
+    'Approval(address,address,uint256)': EventFragment
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': EventFragment
+    'RoleGranted(bytes32,address,address)': EventFragment
+    'RoleRevoked(bytes32,address,address)': EventFragment
+    'Transfer(address,address,uint256)': EventFragment
+  }
+
+  getEvent(nameOrSignatureOrTopic: 'Approval'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'RoleAdminChanged'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'RoleGranted'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'RoleRevoked'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'Transfer'): EventFragment
 }
 
-export namespace ApprovalEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    spender: AddressLike,
-    amount: BigNumberish,
-  ]
-  export type OutputTuple = [owner: string, spender: string, amount: bigint]
-  export interface OutputObject {
-    owner: string
-    spender: string
-    amount: bigint
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
+export interface ApprovalEventObject {
+  owner: string
+  spender: string
+  amount: BigNumber
 }
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber],
+  ApprovalEventObject
+>
 
-export namespace RoleAdminChangedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    previousAdminRole: BytesLike,
-    newAdminRole: BytesLike,
-  ]
-  export type OutputTuple = [
-    role: string,
-    previousAdminRole: string,
-    newAdminRole: string,
-  ]
-  export interface OutputObject {
-    role: string
-    previousAdminRole: string
-    newAdminRole: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
-}
+export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>
 
-export namespace RoleGrantedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    account: AddressLike,
-    sender: AddressLike,
-  ]
-  export type OutputTuple = [role: string, account: string, sender: string]
-  export interface OutputObject {
-    role: string
-    account: string
-    sender: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
+export interface RoleAdminChangedEventObject {
+  role: string
+  previousAdminRole: string
+  newAdminRole: string
 }
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string, string],
+  RoleAdminChangedEventObject
+>
 
-export namespace RoleRevokedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    account: AddressLike,
-    sender: AddressLike,
-  ]
-  export type OutputTuple = [role: string, account: string, sender: string]
-  export interface OutputObject {
-    role: string
-    account: string
-    sender: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
-}
+export type RoleAdminChangedEventFilter =
+  TypedEventFilter<RoleAdminChangedEvent>
 
-export namespace TransferEvent {
-  export type InputTuple = [
-    from: AddressLike,
-    to: AddressLike,
-    amount: BigNumberish,
-  ]
-  export type OutputTuple = [from: string, to: string, amount: bigint]
-  export interface OutputObject {
-    from: string
-    to: string
-    amount: bigint
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
+export interface RoleGrantedEventObject {
+  role: string
+  account: string
+  sender: string
 }
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string],
+  RoleGrantedEventObject
+>
+
+export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>
+
+export interface RoleRevokedEventObject {
+  role: string
+  account: string
+  sender: string
+}
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string],
+  RoleRevokedEventObject
+>
+
+export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>
+
+export interface TransferEventObject {
+  from: string
+  to: string
+  amount: BigNumber
+}
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber],
+  TransferEventObject
+>
+
+export type TransferEventFilter = TypedEventFilter<TransferEvent>
 
 export interface Liquidity extends BaseContract {
-  connect(runner?: ContractRunner | null): BaseContract
-  attach(addressOrName: AddressLike): this
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
   deployed(): Promise<this>
 
   interface: LiquidityInterface
 
-  queryFilter<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
+  queryFilter<TEvent extends TypedEvent>(
+    event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined,
-  ): Promise<Array<TypedEventLog<TCEvent>>>
-  queryFilter<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TypedEventLog<TCEvent>>>
+  ): Promise<Array<TEvent>>
 
-  on<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
-  on<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>,
+  ): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
-  once<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
-  once<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
+  functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>
 
-  listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-  ): Promise<Array<TypedListener<TCEvent>>>
-  listeners(eventName?: string): Promise<Array<Listener>>
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent,
-  ): Promise<this>
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>
 
-  DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], 'view'>
+    GATEWAY_ROLE(overrides?: CallOverrides): Promise<[string]>
 
-  DOMAIN_SEPARATOR: TypedContractMethod<[], [string], 'view'>
+    allowance(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-  GATEWAY_ROLE: TypedContractMethod<[], [string], 'view'>
+    approve(
+      spender: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  allowance: TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
-    [bigint],
-    'view'
-  >
+    balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-  approve: TypedContractMethod<
-    [spender: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
+    decimals(overrides?: CallOverrides): Promise<[number]>
 
-  balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>
+    'deposit(address,uint256)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  decimals: TypedContractMethod<[], [bigint], 'view'>
+    'deposit(address,uint256,uint256,bytes)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  'deposit(address,uint256)': TypedContractMethod<
-    [_depositor: AddressLike, _amount: BigNumberish],
-    [void],
-    'nonpayable'
-  >
+    getRoleAdmin(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<[string]>
 
-  'deposit(address,uint256,uint256,bytes)': TypedContractMethod<
-    [
-      _depositor: AddressLike,
-      _amount: BigNumberish,
-      _deadline: BigNumberish,
-      _signature: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
+    grantRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], 'view'>
+    hasRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>
 
-  grantRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
+    name(overrides?: CallOverrides): Promise<[string]>
 
-  hasRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [boolean],
-    'view'
-  >
+    nonces(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-  name: TypedContractMethod<[], [string], 'view'>
+    permit(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
+      v: PromiseOrValue<BigNumberish>,
+      r: PromiseOrValue<BytesLike>,
+      s: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  nonces: TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>
+    renounceRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  permit: TypedContractMethod<
-    [
-      owner: AddressLike,
-      spender: AddressLike,
-      value: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
+    revokeRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  renounceRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>
 
-  revokeRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
+    symbol(overrides?: CallOverrides): Promise<[string]>
 
-  supportsInterface: TypedContractMethod<
-    [interfaceId: BytesLike],
-    [boolean],
-    'view'
-  >
+    token(overrides?: CallOverrides): Promise<[string]>
 
-  symbol: TypedContractMethod<[], [string], 'view'>
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>
 
-  token: TypedContractMethod<[], [string], 'view'>
+    transfer(
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  totalSupply: TypedContractMethod<[], [bigint], 'view'>
+    transferFrom(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  transfer: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
+    'withdraw(address,uint256,uint256,bytes)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  transferFrom: TypedContractMethod<
-    [from: AddressLike, to: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
+    'withdraw(address,uint256)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
+  }
 
-  'withdraw(address,uint256,uint256,bytes)': TypedContractMethod<
-    [
-      _receiver: AddressLike,
-      _amount: BigNumberish,
-      _deadline: BigNumberish,
-      _signature: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>
 
-  'withdraw(address,uint256)': TypedContractMethod<
-    [_receiver: AddressLike, _amount: BigNumberish],
-    [void],
-    'nonpayable'
-  >
+  DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment,
-  ): T
+  GATEWAY_ROLE(overrides?: CallOverrides): Promise<string>
 
-  getFunction(
-    nameOrSignature: 'DEFAULT_ADMIN_ROLE',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'DOMAIN_SEPARATOR',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'GATEWAY_ROLE',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'allowance',
-  ): TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
-    [bigint],
-    'view'
-  >
-  getFunction(
-    nameOrSignature: 'approve',
-  ): TypedContractMethod<
-    [spender: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'balanceOf',
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>
-  getFunction(
-    nameOrSignature: 'decimals',
-  ): TypedContractMethod<[], [bigint], 'view'>
-  getFunction(
-    nameOrSignature: 'deposit(address,uint256)',
-  ): TypedContractMethod<
-    [_depositor: AddressLike, _amount: BigNumberish],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'deposit(address,uint256,uint256,bytes)',
-  ): TypedContractMethod<
-    [
-      _depositor: AddressLike,
-      _amount: BigNumberish,
-      _deadline: BigNumberish,
-      _signature: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'getRoleAdmin',
-  ): TypedContractMethod<[role: BytesLike], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'grantRole',
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'hasRole',
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [boolean],
-    'view'
-  >
-  getFunction(
-    nameOrSignature: 'name',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'nonces',
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>
-  getFunction(
-    nameOrSignature: 'permit',
-  ): TypedContractMethod<
-    [
-      owner: AddressLike,
-      spender: AddressLike,
-      value: BigNumberish,
-      deadline: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'renounceRole',
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'revokeRole',
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'supportsInterface',
-  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>
-  getFunction(
-    nameOrSignature: 'symbol',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'token',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'totalSupply',
-  ): TypedContractMethod<[], [bigint], 'view'>
-  getFunction(
-    nameOrSignature: 'transfer',
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'transferFrom',
-  ): TypedContractMethod<
-    [from: AddressLike, to: AddressLike, amount: BigNumberish],
-    [boolean],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'withdraw(address,uint256,uint256,bytes)',
-  ): TypedContractMethod<
-    [
-      _receiver: AddressLike,
-      _amount: BigNumberish,
-      _deadline: BigNumberish,
-      _signature: BytesLike,
-    ],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'withdraw(address,uint256)',
-  ): TypedContractMethod<
-    [_receiver: AddressLike, _amount: BigNumberish],
-    [void],
-    'nonpayable'
-  >
+  allowance(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
-  getEvent(
-    key: 'Approval',
-  ): TypedContractEvent<
-    ApprovalEvent.InputTuple,
-    ApprovalEvent.OutputTuple,
-    ApprovalEvent.OutputObject
-  >
-  getEvent(
-    key: 'RoleAdminChanged',
-  ): TypedContractEvent<
-    RoleAdminChangedEvent.InputTuple,
-    RoleAdminChangedEvent.OutputTuple,
-    RoleAdminChangedEvent.OutputObject
-  >
-  getEvent(
-    key: 'RoleGranted',
-  ): TypedContractEvent<
-    RoleGrantedEvent.InputTuple,
-    RoleGrantedEvent.OutputTuple,
-    RoleGrantedEvent.OutputObject
-  >
-  getEvent(
-    key: 'RoleRevoked',
-  ): TypedContractEvent<
-    RoleRevokedEvent.InputTuple,
-    RoleRevokedEvent.OutputTuple,
-    RoleRevokedEvent.OutputObject
-  >
-  getEvent(
-    key: 'Transfer',
-  ): TypedContractEvent<
-    TransferEvent.InputTuple,
-    TransferEvent.OutputTuple,
-    TransferEvent.OutputObject
-  >
+  approve(
+    spender: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  balanceOf(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
+
+  decimals(overrides?: CallOverrides): Promise<number>
+
+  'deposit(address,uint256)'(
+    _depositor: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  'deposit(address,uint256,uint256,bytes)'(
+    _depositor: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _deadline: PromiseOrValue<BigNumberish>,
+    _signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  getRoleAdmin(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides,
+  ): Promise<string>
+
+  grantRole(
+    role: PromiseOrValue<BytesLike>,
+    account: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  hasRole(
+    role: PromiseOrValue<BytesLike>,
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides,
+  ): Promise<boolean>
+
+  name(overrides?: CallOverrides): Promise<string>
+
+  nonces(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
+
+  permit(
+    owner: PromiseOrValue<string>,
+    spender: PromiseOrValue<string>,
+    value: PromiseOrValue<BigNumberish>,
+    deadline: PromiseOrValue<BigNumberish>,
+    v: PromiseOrValue<BigNumberish>,
+    r: PromiseOrValue<BytesLike>,
+    s: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  renounceRole(
+    role: PromiseOrValue<BytesLike>,
+    account: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  revokeRole(
+    role: PromiseOrValue<BytesLike>,
+    account: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  supportsInterface(
+    interfaceId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides,
+  ): Promise<boolean>
+
+  symbol(overrides?: CallOverrides): Promise<string>
+
+  token(overrides?: CallOverrides): Promise<string>
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>
+
+  transfer(
+    to: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  transferFrom(
+    from: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  'withdraw(address,uint256,uint256,bytes)'(
+    _receiver: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _deadline: PromiseOrValue<BigNumberish>,
+    _signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  'withdraw(address,uint256)'(
+    _receiver: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>
+
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>
+
+    GATEWAY_ROLE(overrides?: CallOverrides): Promise<string>
+
+    allowance(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    approve(
+      spender: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides,
+    ): Promise<boolean>
+
+    balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    decimals(overrides?: CallOverrides): Promise<number>
+
+    'deposit(address,uint256)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    'deposit(address,uint256,uint256,bytes)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    getRoleAdmin(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<string>
+
+    grantRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    hasRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<boolean>
+
+    name(overrides?: CallOverrides): Promise<string>
+
+    nonces(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    permit(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
+      v: PromiseOrValue<BigNumberish>,
+      r: PromiseOrValue<BytesLike>,
+      s: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    renounceRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    revokeRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<boolean>
+
+    symbol(overrides?: CallOverrides): Promise<string>
+
+    token(overrides?: CallOverrides): Promise<string>
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>
+
+    transfer(
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides,
+    ): Promise<boolean>
+
+    transferFrom(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides,
+    ): Promise<boolean>
+
+    'withdraw(address,uint256,uint256,bytes)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    'withdraw(address,uint256)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+  }
 
   filters: {
-    'Approval(address,address,uint256)': TypedContractEvent<
-      ApprovalEvent.InputTuple,
-      ApprovalEvent.OutputTuple,
-      ApprovalEvent.OutputObject
-    >
-    Approval: TypedContractEvent<
-      ApprovalEvent.InputTuple,
-      ApprovalEvent.OutputTuple,
-      ApprovalEvent.OutputObject
-    >
+    'Approval(address,address,uint256)'(
+      owner?: PromiseOrValue<string> | null,
+      spender?: PromiseOrValue<string> | null,
+      amount?: null,
+    ): ApprovalEventFilter
+    Approval(
+      owner?: PromiseOrValue<string> | null,
+      spender?: PromiseOrValue<string> | null,
+      amount?: null,
+    ): ApprovalEventFilter
 
-    'RoleAdminChanged(bytes32,bytes32,bytes32)': TypedContractEvent<
-      RoleAdminChangedEvent.InputTuple,
-      RoleAdminChangedEvent.OutputTuple,
-      RoleAdminChangedEvent.OutputObject
-    >
-    RoleAdminChanged: TypedContractEvent<
-      RoleAdminChangedEvent.InputTuple,
-      RoleAdminChangedEvent.OutputTuple,
-      RoleAdminChangedEvent.OutputObject
-    >
+    'RoleAdminChanged(bytes32,bytes32,bytes32)'(
+      role?: PromiseOrValue<BytesLike> | null,
+      previousAdminRole?: PromiseOrValue<BytesLike> | null,
+      newAdminRole?: PromiseOrValue<BytesLike> | null,
+    ): RoleAdminChangedEventFilter
+    RoleAdminChanged(
+      role?: PromiseOrValue<BytesLike> | null,
+      previousAdminRole?: PromiseOrValue<BytesLike> | null,
+      newAdminRole?: PromiseOrValue<BytesLike> | null,
+    ): RoleAdminChangedEventFilter
 
-    'RoleGranted(bytes32,address,address)': TypedContractEvent<
-      RoleGrantedEvent.InputTuple,
-      RoleGrantedEvent.OutputTuple,
-      RoleGrantedEvent.OutputObject
-    >
-    RoleGranted: TypedContractEvent<
-      RoleGrantedEvent.InputTuple,
-      RoleGrantedEvent.OutputTuple,
-      RoleGrantedEvent.OutputObject
-    >
+    'RoleGranted(bytes32,address,address)'(
+      role?: PromiseOrValue<BytesLike> | null,
+      account?: PromiseOrValue<string> | null,
+      sender?: PromiseOrValue<string> | null,
+    ): RoleGrantedEventFilter
+    RoleGranted(
+      role?: PromiseOrValue<BytesLike> | null,
+      account?: PromiseOrValue<string> | null,
+      sender?: PromiseOrValue<string> | null,
+    ): RoleGrantedEventFilter
 
-    'RoleRevoked(bytes32,address,address)': TypedContractEvent<
-      RoleRevokedEvent.InputTuple,
-      RoleRevokedEvent.OutputTuple,
-      RoleRevokedEvent.OutputObject
-    >
-    RoleRevoked: TypedContractEvent<
-      RoleRevokedEvent.InputTuple,
-      RoleRevokedEvent.OutputTuple,
-      RoleRevokedEvent.OutputObject
-    >
+    'RoleRevoked(bytes32,address,address)'(
+      role?: PromiseOrValue<BytesLike> | null,
+      account?: PromiseOrValue<string> | null,
+      sender?: PromiseOrValue<string> | null,
+    ): RoleRevokedEventFilter
+    RoleRevoked(
+      role?: PromiseOrValue<BytesLike> | null,
+      account?: PromiseOrValue<string> | null,
+      sender?: PromiseOrValue<string> | null,
+    ): RoleRevokedEventFilter
 
-    'Transfer(address,address,uint256)': TypedContractEvent<
-      TransferEvent.InputTuple,
-      TransferEvent.OutputTuple,
-      TransferEvent.OutputObject
-    >
-    Transfer: TypedContractEvent<
-      TransferEvent.InputTuple,
-      TransferEvent.OutputTuple,
-      TransferEvent.OutputObject
-    >
+    'Transfer(address,address,uint256)'(
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      amount?: null,
+    ): TransferEventFilter
+    Transfer(
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      amount?: null,
+    ): TransferEventFilter
+  }
+
+  estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>
+
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>
+
+    GATEWAY_ROLE(overrides?: CallOverrides): Promise<BigNumber>
+
+    allowance(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    approve(
+      spender: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    decimals(overrides?: CallOverrides): Promise<BigNumber>
+
+    'deposit(address,uint256)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    'deposit(address,uint256,uint256,bytes)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    getRoleAdmin(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    grantRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    hasRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    name(overrides?: CallOverrides): Promise<BigNumber>
+
+    nonces(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    permit(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
+      v: PromiseOrValue<BigNumberish>,
+      r: PromiseOrValue<BytesLike>,
+      s: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    renounceRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    revokeRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
+
+    symbol(overrides?: CallOverrides): Promise<BigNumber>
+
+    token(overrides?: CallOverrides): Promise<BigNumber>
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>
+
+    transfer(
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    transferFrom(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    'withdraw(address,uint256,uint256,bytes)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    'withdraw(address,uint256)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+  }
+
+  populateTransaction: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    GATEWAY_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    allowance(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    approve(
+      spender: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    'deposit(address,uint256)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    'deposit(address,uint256,uint256,bytes)'(
+      _depositor: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    getRoleAdmin(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    grantRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    hasRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    nonces(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    permit(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      value: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
+      v: PromiseOrValue<BigNumberish>,
+      r: PromiseOrValue<BytesLike>,
+      s: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    renounceRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    revokeRole(
+      role: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+
+    symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    token(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    transfer(
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    transferFrom(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    'withdraw(address,uint256,uint256,bytes)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _deadline: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    'withdraw(address,uint256)'(
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
   }
 }

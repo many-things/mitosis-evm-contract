@@ -23,9 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Liquidity__factory = exports.Vault__factory = exports.factories = void 0;
+exports.Bond__factory = exports.Liquidity__factory = exports.Vault__factory = exports.factories = void 0;
 exports.factories = __importStar(require("./factories"));
 var Vault__factory_1 = require("./factories/Vault__factory");
 Object.defineProperty(exports, "Vault__factory", { enumerable: true, get: function () { return Vault__factory_1.Vault__factory; } });
 var Liquidity__factory_1 = require("./factories/Liquidity__factory");
 Object.defineProperty(exports, "Liquidity__factory", { enumerable: true, get: function () { return Liquidity__factory_1.Liquidity__factory; } });
+var Bond__factory_1 = require("./factories/Bond__factory");
+Object.defineProperty(exports, "Bond__factory", { enumerable: true, get: function () { return Bond__factory_1.Bond__factory; } });

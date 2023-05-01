@@ -3,80 +3,96 @@
 /* eslint-disable */
 import type {
   BaseContract,
+  BigNumber,
   BigNumberish,
   BytesLike,
-  FunctionFragment,
-  Result,
-  Interface,
-  EventFragment,
-  AddressLike,
-  ContractRunner,
-  ContractMethod,
-  Listener,
+  CallOverrides,
+  ContractTransaction,
+  Overrides,
+  PopulatedTransaction,
+  Signer,
+  utils,
 } from 'ethers'
 import type {
-  TypedContractEvent,
-  TypedDeferredTopicFilter,
-  TypedEventLog,
-  TypedLogDescription,
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
+import type {
+  TypedEventFilter,
+  TypedEvent,
   TypedListener,
-  TypedContractMethod,
+  OnEvent,
+  PromiseOrValue,
 } from './common'
 
-export type OperationStruct = { id: BigNumberish; args: BytesLike[] }
+export type OperationStruct = {
+  id: PromiseOrValue<BigNumberish>
+  args: PromiseOrValue<BytesLike>[]
+}
 
-export type OperationStructOutput = [id: bigint, args: string[]] & {
-  id: bigint
+export type OperationStructOutput = [BigNumber, string[]] & {
+  id: BigNumber
   args: string[]
 }
 
-export type TokenStruct = { addr: AddressLike; amount: BigNumberish }
+export type TokenStruct = {
+  addr: PromiseOrValue<string>
+  amount: PromiseOrValue<BigNumberish>
+}
 
-export type TokenStructOutput = [addr: string, amount: bigint] & {
+export type TokenStructOutput = [string, BigNumber] & {
   addr: string
-  amount: bigint
+  amount: BigNumber
 }
 
 export type TokenPermitStruct = {
-  addr: AddressLike
-  amount: BigNumberish
-  deadline: BigNumberish
-  signature: BytesLike
+  addr: PromiseOrValue<string>
+  amount: PromiseOrValue<BigNumberish>
+  deadline: PromiseOrValue<BigNumberish>
+  signature: PromiseOrValue<BytesLike>
 }
 
-export type TokenPermitStructOutput = [
-  addr: string,
-  amount: bigint,
-  deadline: bigint,
-  signature: string,
-] & { addr: string; amount: bigint; deadline: bigint; signature: string }
+export type TokenPermitStructOutput = [string, BigNumber, BigNumber, string] & {
+  addr: string
+  amount: BigNumber
+  deadline: BigNumber
+  signature: string
+}
 
 export declare namespace Vault {
-  export type ExecuteResultStruct = { success: boolean; returndata: BytesLike }
+  export type ExecuteResultStruct = {
+    success: PromiseOrValue<boolean>
+    returndata: PromiseOrValue<BytesLike>
+  }
 
-  export type ExecuteResultStructOutput = [
-    success: boolean,
-    returndata: string,
-  ] & { success: boolean; returndata: string }
+  export type ExecuteResultStructOutput = [boolean, string] & {
+    success: boolean
+    returndata: string
+  }
 
-  export type ExecuteFundStruct = { token: AddressLike; value: BigNumberish }
+  export type ExecuteFundStruct = {
+    token: PromiseOrValue<string>
+    value: PromiseOrValue<BigNumberish>
+  }
 
-  export type ExecuteFundStructOutput = [token: string, value: bigint] & {
+  export type ExecuteFundStructOutput = [string, BigNumber] & {
     token: string
-    value: bigint
+    value: BigNumber
   }
 
   export type ExecuteCalldataStruct = {
-    to: AddressLike
-    value: BigNumberish
-    data: BytesLike
+    to: PromiseOrValue<string>
+    value: PromiseOrValue<BigNumberish>
+    data: PromiseOrValue<BytesLike>
   }
 
-  export type ExecuteCalldataStructOutput = [
-    to: string,
-    value: bigint,
-    data: string,
-  ] & { to: string; value: bigint; data: string }
+  export type ExecuteCalldataStructOutput = [string, BigNumber, string] & {
+    to: string
+    value: BigNumber
+    data: string
+  }
 
   export type ExecutePayloadStruct = {
     funds: Vault.ExecuteFundStruct[]
@@ -84,17 +100,26 @@ export declare namespace Vault {
   }
 
   export type ExecutePayloadStructOutput = [
-    funds: Vault.ExecuteFundStructOutput[],
-    inner: Vault.ExecuteCalldataStructOutput[],
+    Vault.ExecuteFundStructOutput[],
+    Vault.ExecuteCalldataStructOutput[],
   ] & {
     funds: Vault.ExecuteFundStructOutput[]
     inner: Vault.ExecuteCalldataStructOutput[]
   }
 }
 
-export interface VaultInterface extends Interface {
+export interface VaultInterface extends utils.Interface {
+  functions: {
+    'execute(((address,uint256)[],(address,uint256,bytes)[]),bytes)': FunctionFragment
+    'lmgr()': FunctionFragment
+    'owner()': FunctionFragment
+    'send(address,(uint256,bytes[]),(address,uint256))': FunctionFragment
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))': FunctionFragment
+    'transferOwnership(address)': FunctionFragment
+  }
+
   getFunction(
-    nameOrSignature:
+    nameOrSignatureOrTopic:
       | 'execute'
       | 'lmgr'
       | 'owner'
@@ -103,30 +128,23 @@ export interface VaultInterface extends Interface {
       | 'transferOwnership',
   ): FunctionFragment
 
-  getEvent(
-    nameOrSignatureOrTopic:
-      | 'ExecuteOperation'
-      | 'InitOperation'
-      | 'OwnershipTransferred',
-  ): EventFragment
-
   encodeFunctionData(
     functionFragment: 'execute',
-    values: [Vault.ExecutePayloadStruct, BytesLike],
+    values: [Vault.ExecutePayloadStruct, PromiseOrValue<BytesLike>],
   ): string
   encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'send(address,(uint256,bytes[]),(address,uint256))',
-    values: [AddressLike, OperationStruct, TokenStruct],
+    values: [PromiseOrValue<string>, OperationStruct, TokenStruct],
   ): string
   encodeFunctionData(
     functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
-    values: [AddressLike, OperationStruct, TokenPermitStruct],
+    values: [PromiseOrValue<string>, OperationStruct, TokenPermitStruct],
   ): string
   encodeFunctionData(
     functionFragment: 'transferOwnership',
-    values: [AddressLike],
+    values: [PromiseOrValue<string>],
   ): string
 
   decodeFunctionResult(functionFragment: 'execute', data: BytesLike): Result
@@ -144,229 +162,267 @@ export interface VaultInterface extends Interface {
     functionFragment: 'transferOwnership',
     data: BytesLike,
   ): Result
+
+  events: {
+    'ExecuteOperation(address,tuple[])': EventFragment
+    'InitOperation(address,address,uint256,uint256,bytes[])': EventFragment
+    'OwnershipTransferred(address,address)': EventFragment
+  }
+
+  getEvent(nameOrSignatureOrTopic: 'ExecuteOperation'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'InitOperation'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment
 }
 
-export namespace ExecuteOperationEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    results: Vault.ExecuteResultStruct[],
-  ]
-  export type OutputTuple = [
-    owner: string,
-    results: Vault.ExecuteResultStructOutput[],
-  ]
-  export interface OutputObject {
-    owner: string
-    results: Vault.ExecuteResultStructOutput[]
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
+export interface ExecuteOperationEventObject {
+  owner: string
+  results: Vault.ExecuteResultStructOutput[]
 }
+export type ExecuteOperationEvent = TypedEvent<
+  [string, Vault.ExecuteResultStructOutput[]],
+  ExecuteOperationEventObject
+>
 
-export namespace InitOperationEvent {
-  export type InputTuple = [
-    to: AddressLike,
-    token: AddressLike,
-    opId: BigNumberish,
-    amount: BigNumberish,
-    opArgs: BytesLike[],
-  ]
-  export type OutputTuple = [
-    to: string,
-    token: string,
-    opId: bigint,
-    amount: bigint,
-    opArgs: string[],
-  ]
-  export interface OutputObject {
-    to: string
-    token: string
-    opId: bigint
-    amount: bigint
-    opArgs: string[]
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
-}
+export type ExecuteOperationEventFilter =
+  TypedEventFilter<ExecuteOperationEvent>
 
-export namespace OwnershipTransferredEvent {
-  export type InputTuple = [user: AddressLike, newOwner: AddressLike]
-  export type OutputTuple = [user: string, newOwner: string]
-  export interface OutputObject {
-    user: string
-    newOwner: string
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-  export type Filter = TypedDeferredTopicFilter<Event>
-  export type Log = TypedEventLog<Event>
-  export type LogDescription = TypedLogDescription<Event>
+export interface InitOperationEventObject {
+  to: string
+  token: string
+  opId: BigNumber
+  amount: BigNumber
+  opArgs: string[]
 }
+export type InitOperationEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, string[]],
+  InitOperationEventObject
+>
+
+export type InitOperationEventFilter = TypedEventFilter<InitOperationEvent>
+
+export interface OwnershipTransferredEventObject {
+  user: string
+  newOwner: string
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>
 
 export interface Vault extends BaseContract {
-  connect(runner?: ContractRunner | null): BaseContract
-  attach(addressOrName: AddressLike): this
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
   deployed(): Promise<this>
 
   interface: VaultInterface
 
-  queryFilter<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
+  queryFilter<TEvent extends TypedEvent>(
+    event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined,
-  ): Promise<Array<TypedEventLog<TCEvent>>>
-  queryFilter<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TypedEventLog<TCEvent>>>
+  ): Promise<Array<TEvent>>
 
-  on<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
-  on<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>,
+  ): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
-  once<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
-  once<TCEvent extends TypedContractEvent>(
-    filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>,
-  ): Promise<this>
+  functions: {
+    execute(
+      _payload: Vault.ExecutePayloadStruct,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent,
-  ): Promise<Array<TypedListener<TCEvent>>>
-  listeners(eventName?: string): Promise<Array<Listener>>
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent,
-  ): Promise<this>
+    lmgr(overrides?: CallOverrides): Promise<[string]>
 
-  execute: TypedContractMethod<
-    [_payload: Vault.ExecutePayloadStruct, _signature: BytesLike],
-    [void],
-    'nonpayable'
-  >
+    owner(overrides?: CallOverrides): Promise<[string]>
 
-  lmgr: TypedContractMethod<[], [string], 'view'>
+    'send(address,(uint256,bytes[]),(address,uint256))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  owner: TypedContractMethod<[], [string], 'view'>
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-  'send(address,(uint256,bytes[]),(address,uint256))': TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenStruct],
-    [void],
-    'nonpayable'
-  >
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
+  }
 
-  'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))': TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
-    [void],
-    'nonpayable'
-  >
+  execute(
+    _payload: Vault.ExecutePayloadStruct,
+    _signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    'nonpayable'
-  >
+  lmgr(overrides?: CallOverrides): Promise<string>
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment,
-  ): T
+  owner(overrides?: CallOverrides): Promise<string>
 
-  getFunction(
-    nameOrSignature: 'execute',
-  ): TypedContractMethod<
-    [_payload: Vault.ExecutePayloadStruct, _signature: BytesLike],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'lmgr',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'owner',
-  ): TypedContractMethod<[], [string], 'view'>
-  getFunction(
-    nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256))',
-  ): TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenStruct],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
-  ): TypedContractMethod<
-    [_to: AddressLike, _op: OperationStruct, _token: TokenPermitStruct],
-    [void],
-    'nonpayable'
-  >
-  getFunction(
-    nameOrSignature: 'transferOwnership',
-  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>
+  'send(address,(uint256,bytes[]),(address,uint256))'(
+    _to: PromiseOrValue<string>,
+    _op: OperationStruct,
+    _token: TokenStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  getEvent(
-    key: 'ExecuteOperation',
-  ): TypedContractEvent<
-    ExecuteOperationEvent.InputTuple,
-    ExecuteOperationEvent.OutputTuple,
-    ExecuteOperationEvent.OutputObject
-  >
-  getEvent(
-    key: 'InitOperation',
-  ): TypedContractEvent<
-    InitOperationEvent.InputTuple,
-    InitOperationEvent.OutputTuple,
-    InitOperationEvent.OutputObject
-  >
-  getEvent(
-    key: 'OwnershipTransferred',
-  ): TypedContractEvent<
-    OwnershipTransferredEvent.InputTuple,
-    OwnershipTransferredEvent.OutputTuple,
-    OwnershipTransferredEvent.OutputObject
-  >
+  'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+    _to: PromiseOrValue<string>,
+    _op: OperationStruct,
+    _token: TokenPermitStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  transferOwnership(
+    newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  callStatic: {
+    execute(
+      _payload: Vault.ExecutePayloadStruct,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    lmgr(overrides?: CallOverrides): Promise<string>
+
+    owner(overrides?: CallOverrides): Promise<string>
+
+    'send(address,(uint256,bytes[]),(address,uint256))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides,
+    ): Promise<void>
+  }
 
   filters: {
-    'ExecuteOperation(address,tuple[])': TypedContractEvent<
-      ExecuteOperationEvent.InputTuple,
-      ExecuteOperationEvent.OutputTuple,
-      ExecuteOperationEvent.OutputObject
-    >
-    ExecuteOperation: TypedContractEvent<
-      ExecuteOperationEvent.InputTuple,
-      ExecuteOperationEvent.OutputTuple,
-      ExecuteOperationEvent.OutputObject
-    >
+    'ExecuteOperation(address,tuple[])'(
+      owner?: PromiseOrValue<string> | null,
+      results?: null,
+    ): ExecuteOperationEventFilter
+    ExecuteOperation(
+      owner?: PromiseOrValue<string> | null,
+      results?: null,
+    ): ExecuteOperationEventFilter
 
-    'InitOperation(address,address,uint256,uint256,bytes[])': TypedContractEvent<
-      InitOperationEvent.InputTuple,
-      InitOperationEvent.OutputTuple,
-      InitOperationEvent.OutputObject
-    >
-    InitOperation: TypedContractEvent<
-      InitOperationEvent.InputTuple,
-      InitOperationEvent.OutputTuple,
-      InitOperationEvent.OutputObject
-    >
+    'InitOperation(address,address,uint256,uint256,bytes[])'(
+      to?: PromiseOrValue<string> | null,
+      token?: PromiseOrValue<string> | null,
+      opId?: PromiseOrValue<BigNumberish> | null,
+      amount?: null,
+      opArgs?: null,
+    ): InitOperationEventFilter
+    InitOperation(
+      to?: PromiseOrValue<string> | null,
+      token?: PromiseOrValue<string> | null,
+      opId?: PromiseOrValue<BigNumberish> | null,
+      amount?: null,
+      opArgs?: null,
+    ): InitOperationEventFilter
 
-    'OwnershipTransferred(address,address)': TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
-    >
-    OwnershipTransferred: TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
-    >
+    'OwnershipTransferred(address,address)'(
+      user?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null,
+    ): OwnershipTransferredEventFilter
+    OwnershipTransferred(
+      user?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null,
+    ): OwnershipTransferredEventFilter
+  }
+
+  estimateGas: {
+    execute(
+      _payload: Vault.ExecutePayloadStruct,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    lmgr(overrides?: CallOverrides): Promise<BigNumber>
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>
+
+    'send(address,(uint256,bytes[]),(address,uint256))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+  }
+
+  populateTransaction: {
+    execute(
+      _payload: Vault.ExecutePayloadStruct,
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    lmgr(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    'send(address,(uint256,bytes[]),(address,uint256))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
   }
 }

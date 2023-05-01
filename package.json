@@ -12,13 +12,10 @@
   "scripts": {
     "fmt": "prettier --write types/*.ts",
     "compile": "tsc -p .",
-    "typegen": "typechain --target ethers-v6 --out-dir types out/Vault.sol/*.json out/Liquidity.sol/*.json out/Bond.sol/*.json"
-  },
-  "dependencies": {
-    "ethers": "^6.1.0"
+    "typegen": "typechain --target ethers-v5 --out-dir types out/Vault.sol/*.json out/Liquidity.sol/*.json out/Bond.sol/*.json"
   },
   "devDependencies": {
-    "@typechain/ethers-v6": "^0.3.0",
+    "@typechain/ethers-v5": "^10.2.0",
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
@@ -33,5 +30,8 @@
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "ethers": "v5"
   }
 }
