@@ -11,6 +11,12 @@ build: clean
 	@yarn fmt
 	@yarn compile
 
+deploy-local: build
+	@(MNEMONIC="test test test test test test test test test test test junk" \
+		forge script script/deploy.sol:Deploy \
+			--broadcast \
+			--rpc-url http://localhost:8545)
+
 deploy-goerli: build
 	@(MNEMONIC="$(GOERLI_DEPLOYER_KEY)" \
 		forge script script/deploy.sol:Deploy \
