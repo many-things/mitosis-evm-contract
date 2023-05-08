@@ -30,10 +30,10 @@ contract VaultTest is Test {
 
         vm.startPrank(owner.addr);
 
-        vault = new Vault(lmgr);
-
         weth = new WETH();
         lmgr = new Liquidity("TEST", address(weth));
+        vault = new Vault(lmgr);
+
         lmgr.grantRole(lmgr.GATEWAY_ROLE(), address(vault));
 
         vm.stopPrank();
