@@ -18,14 +18,14 @@ contract Deploy is Script {
 
         vm.startBroadcast(privateKey);
 
-        MintBurnERC20 usdc = new MintBurnERC20("USDC", "USD//C", 6);
-        Liquidity lmgr = new Liquidity("LP_USDC", address(usdc));
+        // MintBurnERC20 usdc = new MintBurnERC20("USDC", "USD//C", 6);
+        Liquidity lmgr = new Liquidity("LP_USDC", address(0x5Cbb2F9f7E54c5B4656C3B563ff5650a0866A3EF));
         Bond bond = new Bond(address(lmgr), 3 minutes);
         Vault vault = new Vault(lmgr);
 
         vm.stopBroadcast();
 
-        console.log("usdc  = ", address(usdc));
+        console.log("usdc  = ", address(0x5Cbb2F9f7E54c5B4656C3B563ff5650a0866A3EF));
         console.log("lmgr  = ", address(lmgr));
         console.log("bond  = ", address(bond));
         console.log("vault = ", address(vault));

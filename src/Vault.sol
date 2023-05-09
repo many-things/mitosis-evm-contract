@@ -11,8 +11,6 @@ import {Liquidity} from "@src/Liquidity.sol";
 import {Operation, Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
 
-// import {console} from "@std/Console.sol";
-
 /**
  * @title Vault
  * @author @byeongsu-hong<hong@byeongsu.dev>

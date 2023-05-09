@@ -7,8 +7,6 @@ import {AccessControl} from "@oz/access/AccessControl.sol";
 import {Token, TokenPermit} from "@src/Types.sol";
 import {Utils} from "@src/Utils.sol";
 
-import "@std/Console.sol";
-
 /**
  * @title Liquidity
  * @author @byeongsu-hong<hong@byeongsu.dev>
