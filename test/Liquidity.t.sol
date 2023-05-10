@@ -14,7 +14,6 @@ import {Account, AccountLib} from "@test/Test.t.sol";
 contract LiquidityTest is Test {
     Liquidity internal lmgr;
 
-    address internal ETH;
     WETH internal weth;
 
     Account internal depositor;
@@ -32,10 +31,9 @@ contract LiquidityTest is Test {
     }
 
     function setUp() public {
-        lmgr = new Liquidity("TEST", address(weth));
         weth = new WETH();
+        lmgr = new Liquidity("TEST", address(weth));
 
-        ETH = address(0x1);
         depositor = AccountLib.create(vm, 0x2);
         abuser = AccountLib.create(vm, 0x3);
     }
@@ -65,7 +63,7 @@ contract LiquidityTest is Test {
             depositor.addr,
             1 ether,
             block.timestamp + 1,
-            ERC2612.permit(vm, weth, depositor, address(lmgr), 0.5 ether, block.timestamp + 1)
+            ERC2612.permit(vm, weth, depositor, address(lmgr), 1 ether, block.timestamp + 1)
         );
 
         vm.stopPrank();
@@ -87,6 +85,8 @@ contract LiquidityTest is Test {
             block.timestamp + 1,
             ERC2612.permit(vm, weth, depositor, address(lmgr), 1 ether, block.timestamp + 1)
         );
+
+        lmgr.approve(address(lmgr), 1 ether);
         lmgr.withdraw(depositor.addr, 1 ether);
 
         vm.stopPrank();

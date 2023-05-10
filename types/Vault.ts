@@ -114,7 +114,9 @@ export interface VaultInterface extends utils.Interface {
     'lmgr()': FunctionFragment
     'owner()': FunctionFragment
     'send(address,(uint256,bytes[]),(address,uint256))': FunctionFragment
+    'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))': FunctionFragment
     'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))': FunctionFragment
+    'send(address,address,(uint256,bytes[]),(address,uint256))': FunctionFragment
     'transferOwnership(address)': FunctionFragment
   }
 
@@ -124,7 +126,9 @@ export interface VaultInterface extends utils.Interface {
       | 'lmgr'
       | 'owner'
       | 'send(address,(uint256,bytes[]),(address,uint256))'
+      | 'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'
       | 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'
+      | 'send(address,address,(uint256,bytes[]),(address,uint256))'
       | 'transferOwnership',
   ): FunctionFragment
 
@@ -139,8 +143,26 @@ export interface VaultInterface extends utils.Interface {
     values: [PromiseOrValue<string>, OperationStruct, TokenStruct],
   ): string
   encodeFunctionData(
+    functionFragment: 'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      OperationStruct,
+      TokenPermitStruct,
+    ],
+  ): string
+  encodeFunctionData(
     functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
     values: [PromiseOrValue<string>, OperationStruct, TokenPermitStruct],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'send(address,address,(uint256,bytes[]),(address,uint256))',
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      OperationStruct,
+      TokenStruct,
+    ],
   ): string
   encodeFunctionData(
     functionFragment: 'transferOwnership',
@@ -155,7 +177,15 @@ export interface VaultInterface extends utils.Interface {
     data: BytesLike,
   ): Result
   decodeFunctionResult(
+    functionFragment: 'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(
     functionFragment: 'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(
+    functionFragment: 'send(address,address,(uint256,bytes[]),(address,uint256))',
     data: BytesLike,
   ): Result
   decodeFunctionResult(
@@ -256,10 +286,26 @@ export interface Vault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>
 
+    'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
+
     'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
       _to: PromiseOrValue<string>,
       _op: OperationStruct,
       _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
+
+    'send(address,address,(uint256,bytes[]),(address,uint256))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>
 
@@ -286,10 +332,26 @@ export interface Vault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>
 
+  'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+    _from: PromiseOrValue<string>,
+    _to: PromiseOrValue<string>,
+    _op: OperationStruct,
+    _token: TokenPermitStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
   'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
     _to: PromiseOrValue<string>,
     _op: OperationStruct,
     _token: TokenPermitStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
+
+  'send(address,address,(uint256,bytes[]),(address,uint256))'(
+    _from: PromiseOrValue<string>,
+    _to: PromiseOrValue<string>,
+    _op: OperationStruct,
+    _token: TokenStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>
 
@@ -316,10 +378,26 @@ export interface Vault extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>
 
+    'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
     'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
       _to: PromiseOrValue<string>,
       _op: OperationStruct,
       _token: TokenPermitStruct,
+      overrides?: CallOverrides,
+    ): Promise<void>
+
+    'send(address,address,(uint256,bytes[]),(address,uint256))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
       overrides?: CallOverrides,
     ): Promise<void>
 
@@ -382,10 +460,26 @@ export interface Vault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>
 
+    'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
     'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
       _to: PromiseOrValue<string>,
       _op: OperationStruct,
       _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+
+    'send(address,address,(uint256,bytes[]),(address,uint256))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>
 
@@ -413,10 +507,26 @@ export interface Vault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>
 
+    'send(address,address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
     'send(address,(uint256,bytes[]),(address,uint256,uint256,bytes))'(
       _to: PromiseOrValue<string>,
       _op: OperationStruct,
       _token: TokenPermitStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+
+    'send(address,address,(uint256,bytes[]),(address,uint256))'(
+      _from: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      _op: OperationStruct,
+      _token: TokenStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>
 
