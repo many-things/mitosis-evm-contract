@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8.17;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >= 0.8;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {AccessControl} from "@oz/access/AccessControl.sol";

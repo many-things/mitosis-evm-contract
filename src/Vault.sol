@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8.17;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >= 0.8;
 pragma abicoder v2;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
@@ -64,11 +64,11 @@ contract Vault is Owned {
 
         ERC20 token = ERC20(_token.addr);
 
-        uint256 allowance = token.allowance(_from, address(this));
+        uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= _token.amount, "insufficient allowance");
 
         // approve & accept
-        token.transferFrom(_from, address(this), _token.amount);
+        token.transferFrom(msg.sender, address(this), _token.amount);
 
         // approve & deposit
         token.approve(address(lmgr), _token.amount);
@@ -103,8 +103,8 @@ contract Vault is Owned {
         (uint8 v, bytes32 r, bytes32 s) = Utils.unwrapSig(_token.signature);
 
         // approve & accept
-        token.permit(_from, address(this), _token.amount, _token.deadline, v, r, s);
-        token.transferFrom(_from, address(this), _token.amount);
+        token.permit(msg.sender, address(this), _token.amount, _token.deadline, v, r, s);
+        token.transferFrom(msg.sender, address(this), _token.amount);
 
         // approve & deposit
         token.approve(address(lmgr), _token.amount);
