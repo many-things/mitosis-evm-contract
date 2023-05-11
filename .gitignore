@@ -2,7 +2,7 @@
 cache/
 out/
 
-# dist/
+dist/
 node_modules/
 
 # Ignores development broadcast logs

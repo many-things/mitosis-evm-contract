@@ -2,5 +2,7 @@
 @solmate=lib/solmate/src/
 @oz=lib/openzeppelin-contracts/contracts/
 @p2s=lib/protobuf3-solidity-lib/contracts/
+@multicall=lib/multicall/src/
+@uniswap=lib/v2-periphery/contracts
 @src/=src/
 @test/=test/
