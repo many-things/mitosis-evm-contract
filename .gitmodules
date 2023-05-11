@@ -16,3 +16,7 @@ branch = v0.6.0
 [submodule "lib/v2-periphery"]
 path = lib/v2-periphery
 url = https://github.com/uniswap/v2-periphery
+[submodule "lib/multicall"]
+	path = lib/multicall
+	url = https://github.com/mds1/multicall
+	branch = main
