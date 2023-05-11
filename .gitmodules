@@ -13,3 +13,7 @@
 	path = lib/protobuf3-solidity-lib
 	url = https://github.com/celestiaorg/protobuf3-solidity-lib
 	branch = v0.6.0
+[submodule "lib/multicall"]
+	path = lib/multicall
+	url = https://github.com/mds1/multicall
+	branch = v3.1.0
