@@ -128,7 +128,7 @@ contract VaultTest is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(owner.key, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
 
-        vault.execute(payload, signature);
+        vault.execute(payload, 0, signature);
 
         assertEq(lmgr.balanceOf(address(vault)), 0);
         assertEq(weth.balanceOf(address(lmgr)), 0);
