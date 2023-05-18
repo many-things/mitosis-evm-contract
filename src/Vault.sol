@@ -134,9 +134,9 @@ contract Vault is Owned {
         bytes returndata;
     }
 
-    event ExecuteOperation(address indexed owner, ExecuteResult[] results);
+    event ExecuteOperation(address indexed owner, uint256 reqOpID, ExecuteResult[] results);
 
-    function execute(ExecutePayload memory _payload, bytes memory _signature) public {
+    function execute(ExecutePayload memory _payload, uint256 _reqOpID, bytes memory _signature) public {
         (uint8 v, bytes32 r, bytes32 s) = Utils.unwrapSig(_signature);
 
         address recovered = ecrecover(keccak256(abi.encode(_payload)), v, r, s);
@@ -169,6 +169,6 @@ contract Vault is Owned {
             }
         }
 
-        emit ExecuteOperation(owner, results);
+        emit ExecuteOperation(owner, _reqOpID, results);
     }
 }
