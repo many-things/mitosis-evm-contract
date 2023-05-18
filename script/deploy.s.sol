@@ -27,10 +27,10 @@ contract Deploy is Script {
         MintBurnERC20 usdc = MintBurnERC20(0x5Cbb2F9f7E54c5B4656C3B563ff5650a0866A3EF);
         Liquidity lmgr = Liquidity(0x958c5CB5479616908eF550Da851F59E5f119750C);
         Bond bond = Bond(0xAc04705DFb53e326B79238afeaff84906e60A6EE);
+        Multicall multicall = Multicall(payable(address(0x7480e4D89d485114016A7EC3d5d2E4760a405a12)));
 
         // new ones
         Vault vault = new Vault(lmgr);
-        Multicall multicall = new Multicall();
 
         vm.stopBroadcast();
 

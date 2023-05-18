@@ -110,7 +110,7 @@ export declare namespace Vault {
 
 export interface VaultInterface extends utils.Interface {
   functions: {
-    'execute(((address,uint256)[],(address,uint256,bytes)[]),bytes)': FunctionFragment
+    'execute(((address,uint256)[],(address,uint256,bytes)[]),uint256,bytes)': FunctionFragment
     'lmgr()': FunctionFragment
     'owner()': FunctionFragment
     'send(address,(uint256,bytes[]),(address,uint256))': FunctionFragment
@@ -134,7 +134,11 @@ export interface VaultInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: 'execute',
-    values: [Vault.ExecutePayloadStruct, PromiseOrValue<BytesLike>],
+    values: [
+      Vault.ExecutePayloadStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+    ],
   ): string
   encodeFunctionData(functionFragment: 'lmgr', values?: undefined): string
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string
@@ -194,7 +198,7 @@ export interface VaultInterface extends utils.Interface {
   ): Result
 
   events: {
-    'ExecuteOperation(address,tuple[])': EventFragment
+    'ExecuteOperation(address,uint256,tuple[])': EventFragment
     'InitOperation(address,address,uint256,uint256,bytes[])': EventFragment
     'OwnershipTransferred(address,address)': EventFragment
   }
@@ -206,10 +210,11 @@ export interface VaultInterface extends utils.Interface {
 
 export interface ExecuteOperationEventObject {
   owner: string
+  reqOpID: BigNumber
   results: Vault.ExecuteResultStructOutput[]
 }
 export type ExecuteOperationEvent = TypedEvent<
-  [string, Vault.ExecuteResultStructOutput[]],
+  [string, BigNumber, Vault.ExecuteResultStructOutput[]],
   ExecuteOperationEventObject
 >
 
@@ -271,6 +276,7 @@ export interface Vault extends BaseContract {
   functions: {
     execute(
       _payload: Vault.ExecutePayloadStruct,
+      _reqOpID: PromiseOrValue<BigNumberish>,
       _signature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>
@@ -317,6 +323,7 @@ export interface Vault extends BaseContract {
 
   execute(
     _payload: Vault.ExecutePayloadStruct,
+    _reqOpID: PromiseOrValue<BigNumberish>,
     _signature: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>
@@ -363,6 +370,7 @@ export interface Vault extends BaseContract {
   callStatic: {
     execute(
       _payload: Vault.ExecutePayloadStruct,
+      _reqOpID: PromiseOrValue<BigNumberish>,
       _signature: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides,
     ): Promise<void>
@@ -408,12 +416,14 @@ export interface Vault extends BaseContract {
   }
 
   filters: {
-    'ExecuteOperation(address,tuple[])'(
+    'ExecuteOperation(address,uint256,tuple[])'(
       owner?: PromiseOrValue<string> | null,
+      reqOpID?: null,
       results?: null,
     ): ExecuteOperationEventFilter
     ExecuteOperation(
       owner?: PromiseOrValue<string> | null,
+      reqOpID?: null,
       results?: null,
     ): ExecuteOperationEventFilter
 
@@ -445,6 +455,7 @@ export interface Vault extends BaseContract {
   estimateGas: {
     execute(
       _payload: Vault.ExecutePayloadStruct,
+      _reqOpID: PromiseOrValue<BigNumberish>,
       _signature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>
@@ -492,6 +503,7 @@ export interface Vault extends BaseContract {
   populateTransaction: {
     execute(
       _payload: Vault.ExecutePayloadStruct,
+      _reqOpID: PromiseOrValue<BigNumberish>,
       _signature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>
