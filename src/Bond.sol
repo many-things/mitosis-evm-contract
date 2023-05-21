@@ -104,11 +104,12 @@ contract BondQuerier {
         uint256 min = Math.min(lastUnbondingIndex, Math.max(lastClaimedIndex, _start));
         uint256 max = Math.min(lastUnbondingIndex, min + limit);
 
-        Unbonding[] memory unbondings = new Unbonding[](limit);
+        Unbonding[] memory unbondings = new Unbonding[](max - min);
 
         for (uint256 i = min; i < max; i++) {
-            (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, i);
-            unbondings[i] = Unbonding(amount, createdAt, claimableAt);
+            uint256 idx = i + min;
+            (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, idx);
+            unbondings[idx] = Unbonding(amount, createdAt, claimableAt);
         }
 
         return unbondings;
