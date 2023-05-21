@@ -76,3 +76,40 @@ contract Bond is AccessControl {
         ERC20(token).transfer(msg.sender, total);
     }
 }
+
+contract BondQuerier {
+    uint256 public constant MAX_QUERY_LIMIT = 30;
+
+    Bond public bond;
+
+    enum Order {
+        ASC,
+        DESC
+    }
+
+    constructor(Bond _bond) {
+        bond = _bond;
+    }
+
+    function getUnbondings(address _recipient, uint256 _start, uint256 _limit)
+        public
+        view
+        returns (Unbonding[] memory)
+    {
+        uint256 lastUnbondingIndex = bond.lastUnbondingIndex(_recipient);
+        uint256 lastClaimedIndex = bond.lastClaimedIndex(_recipient);
+        require(lastClaimedIndex <= _start && _start < lastUnbondingIndex, "invalid index");
+
+        uint256 max_amount = Math.min(_start + _limit, lastUnbondingIndex - _start);
+        uint256 limit = Math.min(Math.min(_limit, MAX_QUERY_LIMIT), max_amount);
+
+        Unbonding[] memory unbondings = new Unbonding[](limit);
+
+        for (uint256 i = 0; i < limit; i++) {
+            (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, _start + i);
+            unbondings[i] = Unbonding(amount, createdAt, claimableAt);
+        }
+
+        return unbondings;
+    }
+}

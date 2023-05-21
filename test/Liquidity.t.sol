@@ -95,6 +95,32 @@ contract LiquidityTest is Test {
         assertEq(weth.balanceOf(depositor.addr), 1 ether);
     }
 
+    function test_withdraw_erc2612() public {
+        lmgr.grantRole(lmgr.GATEWAY_ROLE(), depositor.addr);
+        vm.startPrank(depositor.addr);
+
+        vm.deal(depositor.addr, 1 ether);
+        weth.deposit{value: 1 ether}();
+        lmgr.deposit(
+            depositor.addr,
+            1 ether,
+            block.timestamp + 1,
+            ERC2612.permit(vm, weth, depositor, address(lmgr), 1 ether, block.timestamp + 1)
+        );
+
+        lmgr.withdraw(
+            depositor.addr,
+            1 ether,
+            block.timestamp + 1,
+            ERC2612.permit(vm, lmgr, depositor, address(lmgr), 1 ether, block.timestamp + 1)
+        );
+
+        vm.stopPrank();
+
+        assertEq(weth.balanceOf(address(lmgr)), 0);
+        assertEq(weth.balanceOf(depositor.addr), 1 ether);
+    }
+
     function test_withdraw_underflow() public {
         vm.prank(depositor.addr);
         vm.expectRevert();

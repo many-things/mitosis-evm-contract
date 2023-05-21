@@ -1,8 +1,8 @@
-import { Vault__factory, MintBurnERC20__factory } from '../types'
+import { Vault__factory, MintBurnERC20__factory, Bond__factory } from '../types'
 import { Wallet, providers } from 'ethers'
 
 async function main() {
-  const provider = new providers.JsonRpcProvider('http://127.0.0.1:8545', 74)
+  const provider = new providers.JsonRpcProvider('http://127.0.0.1:8545')
   const signer = new Wallet(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     provider,
@@ -14,7 +14,7 @@ async function main() {
     signer,
   )
   const usdc = MintBurnERC20__factory.connect(
-    '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    '0x958c5CB5479616908eF550Da851F59E5f119750C',
     signer,
   )
 
