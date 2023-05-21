@@ -108,7 +108,7 @@ contract BondQuerier {
 
         for (uint256 i = 0; i < max - min; i++) {
             (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, i + min);
-            unbondings[i + min] = Unbonding(amount, createdAt, claimableAt);
+            unbondings[i] = Unbonding(amount, createdAt, claimableAt);
         }
 
         return unbondings;
