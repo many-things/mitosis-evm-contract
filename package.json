@@ -1,6 +1,6 @@
 {
   "name": "@many-things/mitosis-evm-contract",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "SDK for Mitosis' EVM contracts",
   "repository": "git@github.com:many-things/mitosis-evm-contract.git",
   "author": "byeongsu-hong <hong@byeongsu.dev>",
