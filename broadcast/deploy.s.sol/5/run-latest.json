@@ -6,9 +6,7 @@
       "contractName": "BondQuerier",
       "contractAddress": "0xbBF81886Cf0203d00A252364D7433206171262e4",
       "function": null,
-      "arguments": [
-        "0xAc04705DFb53e326B79238afeaff84906e60A6EE"
-      ],
+      "arguments": ["0xAc04705DFb53e326B79238afeaff84906e60A6EE"],
       "rpc": "https://eth-goerli.g.alchemy.com/v2/7oVXYViPFOwCPNhrlyUrjBY7SQ4y7Pcg",
       "transaction": {
         "type": "0x02",
