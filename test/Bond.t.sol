@@ -71,7 +71,7 @@ contract BondTest is Test {
             startTime += 1 minutes;
         }
 
-        Unbonding[] memory unbondings = bondQuerier.getUnbondings(user.addr, 3, 10);
+        Unbonding[] memory unbondings = bondQuerier.getUnbondings(user.addr, 2, 10);
 
         for (uint256 i = 0; i < unbondings.length; i++) {
             Unbonding memory unbonding = unbondings[i];

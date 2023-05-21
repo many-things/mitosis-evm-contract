@@ -98,15 +98,16 @@ contract BondQuerier {
     {
         uint256 lastUnbondingIndex = bond.lastUnbondingIndex(_recipient);
         uint256 lastClaimedIndex = bond.lastClaimedIndex(_recipient);
-        require(lastClaimedIndex <= _start && _start < lastUnbondingIndex, "invalid index");
 
-        uint256 max_amount = Math.min(_start + _limit, lastUnbondingIndex - _start);
-        uint256 limit = Math.min(Math.min(_limit, MAX_QUERY_LIMIT), max_amount);
+        uint256 limit = Math.min(_limit, MAX_QUERY_LIMIT);
 
-        Unbonding[] memory unbondings = new Unbonding[](limit);
+        uint256 min = Math.min(lastUnbondingIndex, Math.max(lastClaimedIndex, _start));
+        uint256 max = Math.min(lastUnbondingIndex, min + limit);
 
-        for (uint256 i = 0; i < limit; i++) {
-            (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, _start + i);
+        Unbonding[] memory unbondings = new Unbonding[](max - min);
+
+        for (uint256 i = 0; i < max - min; i++) {
+            (uint256 amount, uint256 createdAt, uint256 claimableAt) = bond.unbondings(_recipient, i + min);
             unbondings[i] = Unbonding(amount, createdAt, claimableAt);
         }
 
